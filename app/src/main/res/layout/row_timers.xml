@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:context="com.github.komarnicki.thomas.ringtimer.TimerList.TimerListActivity">
+
+
+    <TextView
+        android:id="@+id/row_timer_duration"
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="20dp"
+        android:text="3 min"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display2"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/row_timers_break"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="1 min"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        app:layout_constraintBaseline_toBaselineOf="@+id/row_timer_duration"
+        app:layout_constraintStart_toEndOf="@+id/row_timer_duration"
+        android:layout_marginStart="30dp"/>
+</android.support.constraint.ConstraintLayout>
