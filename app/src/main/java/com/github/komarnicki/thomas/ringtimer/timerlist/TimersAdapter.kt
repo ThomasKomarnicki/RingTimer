@@ -1,4 +1,4 @@
-package com.github.komarnicki.thomas.ringtimer.TimerList
+package com.github.komarnicki.thomas.ringtimer.timerlist
 
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -12,8 +12,8 @@ class TimersAdapter(var timers: List<Timer>) : RecyclerView.Adapter<TimersAdapte
 
     override fun onBindViewHolder(viewHolder: VH, position: Int) {
         val t = timers[position]
-        viewHolder.durationTime.text = t.duration.toString()
-        viewHolder.breakTime.text = t.breakTime.toString()
+        viewHolder.durationTime.text = displayDuration(t.duration)
+        viewHolder.breakTime.text = displayDuration(t.breakTime)
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): VH {
@@ -26,5 +26,19 @@ class TimersAdapter(var timers: List<Timer>) : RecyclerView.Adapter<TimersAdapte
     class VH(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var durationTime : TextView = itemView.findViewById(R.id.row_timer_duration) as TextView
         var breakTime : TextView = itemView.findViewById(R.id.row_timers_break) as TextView
+    }
+
+    fun displayDuration(seconds: Int): String {
+        if(seconds < 60){
+            return "$seconds sec"
+        }
+        val remainder = seconds % 60
+        val minutes = seconds / 60
+
+        if(remainder == 0){
+            return "$minutes min"
+        }else{
+            return "$minutes:$remainder min"
+        }
     }
 }

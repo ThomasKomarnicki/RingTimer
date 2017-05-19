@@ -1,14 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.github.komarnicki.thomas.ringtimer.TimerList.TimerListActivity">
+    tools:context="com.github.komarnicki.thomas.ringtimer.timerlist.TimerListActivity">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/timer_list_recycler"
+    <fragment
+        android:id="@+id/fragment_timer_list"
+        android:name="com.github.komarnicki.thomas.ringtimer.timerlist.TimerListFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        tools:layout="@layout/fragment_timer_list"/>
+
+    <FrameLayout
+        android:id="@+id/addTimerContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </FrameLayout>
+
+
 </android.support.constraint.ConstraintLayout>
