@@ -8,16 +8,19 @@ import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.github.komarnicki.thomas.ringtimer.R
 import com.github.komarnicki.thomas.ringtimer.addtimer.AddTimerFragment
+import com.github.komarnicki.thomas.ringtimer.model.Timer
+import com.github.komarnicki.thomas.ringtimer.model.TimerDatabaseObject
 
 class TimerListFragment : LifecycleFragment(){
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater?.inflate(R.layout.fragment_timer_list, container, false);
+        return inflater?.inflate(R.layout.fragment_timer_list, container, false)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -33,8 +36,10 @@ class TimerListFragment : LifecycleFragment(){
 
         var adapter: TimersAdapter? = null
 
-        val viewModel = ViewModelProviders.of(this).get(TimerListViewModel::class.java)
-        viewModel.getTimers().observe(this, Observer {
+        val viewModel = ViewModelProviders.of(activity).get(TimersViewModel::class.java)
+
+        viewModel.timers?.observe(this, Observer {
+            Log.d("TimerListFragment","timers updated, count = ${it?.size}");
             if(adapter == null){
                 adapter = TimersAdapter(it!!)
                 recycler.adapter = adapter
@@ -43,6 +48,7 @@ class TimerListFragment : LifecycleFragment(){
                 adapter?.notifyDataSetChanged()
             }
         })
+
 
     }
 
