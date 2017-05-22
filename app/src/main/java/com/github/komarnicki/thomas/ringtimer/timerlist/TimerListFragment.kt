@@ -4,6 +4,7 @@ import android.arch.lifecycle.Lifecycle
 import android.arch.lifecycle.LifecycleFragment
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.support.v7.widget.LinearLayoutManager
@@ -13,11 +14,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.github.komarnicki.thomas.ringtimer.R
+import com.github.komarnicki.thomas.ringtimer.TimerService
 import com.github.komarnicki.thomas.ringtimer.addtimer.AddTimerFragment
 import com.github.komarnicki.thomas.ringtimer.model.Timer
 import com.github.komarnicki.thomas.ringtimer.model.TimerDatabaseObject
 
-class TimerListFragment : LifecycleFragment(){
+class TimerListFragment : LifecycleFragment(), TimersAdapter.TimerClickListener{
+
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater?.inflate(R.layout.fragment_timer_list, container, false)
@@ -41,15 +44,13 @@ class TimerListFragment : LifecycleFragment(){
         viewModel.timers?.observe(this, Observer {
             Log.d("TimerListFragment","timers updated, count = ${it?.size}");
             if(adapter == null){
-                adapter = TimersAdapter(it!!)
+                adapter = TimersAdapter(it!!, this)
                 recycler.adapter = adapter
             }else{
                 adapter?.timers = it!!
                 adapter?.notifyDataSetChanged()
             }
         })
-
-
     }
 
     fun addTimer(){
@@ -59,6 +60,12 @@ class TimerListFragment : LifecycleFragment(){
                     .addToBackStack("add_timer")
                     .commit()
         }
+    }
+
+    override fun onTimerClicked(timer: Timer, view: View) {
+        val intent = Intent(activity, TimerService::class.java)
+        intent.putExtra("timer", timer)
+        activity.startService(intent)
     }
 
 }

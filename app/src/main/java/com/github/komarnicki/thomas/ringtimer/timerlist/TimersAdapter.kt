@@ -8,12 +8,15 @@ import android.widget.TextView
 import com.github.komarnicki.thomas.ringtimer.R
 import com.github.komarnicki.thomas.ringtimer.model.Timer
 
-class TimersAdapter(var timers: List<Timer>) : RecyclerView.Adapter<TimersAdapter.VH>() {
+class TimersAdapter(var timers: List<Timer>, var timerClickListener: TimerClickListener) : RecyclerView.Adapter<TimersAdapter.VH>() {
 
     override fun onBindViewHolder(viewHolder: VH, position: Int) {
         val t = timers[position]
         viewHolder.durationTime.text = displayDuration(t.duration)
         viewHolder.breakTime.text = displayDuration(t.breakTime)
+        viewHolder.itemView.setOnClickListener {
+            timerClickListener.onTimerClicked(timers[position], it)
+        }
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): VH {
@@ -40,5 +43,9 @@ class TimersAdapter(var timers: List<Timer>) : RecyclerView.Adapter<TimersAdapte
         }else{
             return "$minutes:$remainder min"
         }
+    }
+
+    interface TimerClickListener{
+        fun onTimerClicked(timer: Timer, view: View)
     }
 }
