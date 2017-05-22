@@ -5,5 +5,5 @@ import android.os.Binder
 
 class TimerServiceBinder : Binder() {
 
-
+    var timerCountDown: TimerCountDown? = null
 }
