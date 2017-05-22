@@ -14,11 +14,14 @@ class TimerCountDown(var timer:Timer) {
 //    private var observableEmitter: ObservableEmitter<TimerProgressUpdate>? = null
     private var timerProgress: Long = 0
     var running: Boolean = false
+    var alive: Boolean = true
 
     var timerObservable: Observable<TimerProgressUpdate> = Observable.interval(0L, 1L, TimeUnit.SECONDS).doOnNext {
         timerProgress += it
     }.skipWhile {
         !running
+    }.takeUntil {
+        !alive
     }.map {
         TimerProgressUpdate(it.toInt(), timer)
     }
@@ -39,6 +42,6 @@ class TimerCountDown(var timer:Timer) {
 
     fun stop(){
         running = false
-
+        alive = false
     }
 }

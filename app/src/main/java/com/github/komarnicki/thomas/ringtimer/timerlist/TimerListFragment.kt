@@ -71,15 +71,15 @@ class TimerListFragment : LifecycleFragment(), TimersAdapter.TimerClickListener{
         }
     }
 
-    override fun onResume() {
-        super.onResume()
+    override fun onStart() {
+        super.onStart()
         if(viewModel?.activeTimer != null){
             bindService(viewModel?.activeTimer)
         }
     }
 
-    override fun onPause() {
-        super.onPause()
+    override fun onStop() {
+        super.onStop()
         if(viewModel?.activeTimer != null){
             unbindService()
         }

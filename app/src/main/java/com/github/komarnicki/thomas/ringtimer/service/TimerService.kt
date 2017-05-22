@@ -34,6 +34,7 @@ class TimerService : Service() {
             Log.d("TimerService", "Observer completed")
             disposable?.dispose()
             disposable = null
+            stopSelf()
         }
 
         override fun onSubscribe(d: Disposable) {
@@ -41,9 +42,11 @@ class TimerService : Service() {
         }
 
         override fun onNext(t: TimerProgressUpdate) {
-            Log.d("TimerService", "Got Progress Update ${t.progress}")
-            contentView!!.setTextViewText(R.id.notification_time, t.progress.toString())
-            notificationManager?.notify(ONGOING_NOTIFICATION_ID, notification)
+            if(binder.timerCountDown!!.running) {
+                Log.d("TimerService", "Got Progress Update ${t.progress}")
+                contentView!!.setTextViewText(R.id.notification_time, t.progress.toString())
+                notificationManager?.notify(ONGOING_NOTIFICATION_ID, notification)
+            }
         }
 
         override fun onError(e: Throwable) {
@@ -61,14 +64,19 @@ class TimerService : Service() {
         if(intent!!.hasExtra("timer")) {
             notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
             showForegroundNotification(intent)
-        }else if(intent.hasExtra("pause_play")){
+        }else if(intent.hasExtra("pause")){
             Log.d("TimerService", "paused_play")
             if(binder.timerCountDown?.running!!) {
                 binder.timerCountDown?.pause()
+                stopForeground(false)
             }else{
                 binder.timerCountDown?.start()
+                startForeground(ONGOING_NOTIFICATION_ID, notification)
             }
-            configPlayPause(contentView)
+//            configPlayPause(contentView)
+        }else if(intent.hasExtra("stop")){
+            stopForeground(true)
+            binder.timerCountDown?.stop()
         }
 
         return super.onStartCommand(intent, flags, startId)
@@ -77,6 +85,10 @@ class TimerService : Service() {
     private fun showForegroundNotification(intent: Intent?){
         val notificationIntent = Intent(this, TimerListActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0)
+
+        val stopIntent = Intent(this, TimerService::class.java)
+        stopIntent.putExtra("stop", true)
+        val stopPendingIntent = PendingIntent.getService(this, 0, stopIntent, 0)
 
         val timer = intent!!.getParcelableExtra<Timer>("timer");
 
@@ -89,6 +101,7 @@ class TimerService : Service() {
         builder.setSmallIcon(R.mipmap.ic_launcher)
         builder.setContent(contentView)
         builder.setContentIntent(pendingIntent)
+        builder.setDeleteIntent(stopPendingIntent)
 
         notification = builder.build()
 
@@ -106,9 +119,9 @@ class TimerService : Service() {
 
     private fun configPlayPause(remoteViews: RemoteViews?){
         val intent = Intent(this, TimerService::class.java)
-        intent.putExtra("pause_play", true)
-        val pausePendingIntent = PendingIntent.getService(this, 0, intent, 0)
+        intent.putExtra("pause", true)
+        val pausePendingIntent = PendingIntent.getService(this, 4, intent, 0)
         remoteViews?.setOnClickPendingIntent(R.id.notification_play_pause, pausePendingIntent)
-        notificationManager?.notify(ONGOING_NOTIFICATION_ID, notification)
+//        notificationManager?.notify(ONGOING_NOTIFICATION_ID, notification)
     }
 }
