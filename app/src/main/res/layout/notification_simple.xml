@@ -27,10 +27,11 @@
 
         <ImageButton
             android:id="@+id/notification_play_pause"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="48dp"
+            android:layout_height="match_parent"
             android:layout_gravity="center"
-            app:srcCompat="@android:drawable/ic_media_pause" />
+            app:srcCompat="@android:drawable/ic_media_pause"
+            android:minHeight="32dp"/>
 
     </FrameLayout>
 

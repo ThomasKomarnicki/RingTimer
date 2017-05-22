@@ -8,6 +8,9 @@ import com.github.komarnicki.thomas.ringtimer.model.TimerDatabaseObject
 class TimersViewModel : ViewModel() {
 
     private var _timers:  LiveData<List<Timer>>? = null
+    var activeTimer: Timer? = null;
+
+
     var timers: LiveData<List<Timer>>? = null
         get() {
             if(_timers == null){

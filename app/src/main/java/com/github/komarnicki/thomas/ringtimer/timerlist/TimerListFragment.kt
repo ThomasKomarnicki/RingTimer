@@ -1,11 +1,15 @@
 package com.github.komarnicki.thomas.ringtimer.timerlist
 
+import android.app.Service
 import android.arch.lifecycle.Lifecycle
 import android.arch.lifecycle.LifecycleFragment
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.content.ComponentName
 import android.content.Intent
+import android.content.ServiceConnection
 import android.os.Bundle
+import android.os.IBinder
 import android.support.design.widget.FloatingActionButton
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -14,13 +18,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.github.komarnicki.thomas.ringtimer.R
-import com.github.komarnicki.thomas.ringtimer.TimerService
+import com.github.komarnicki.thomas.ringtimer.service.TimerService
 import com.github.komarnicki.thomas.ringtimer.addtimer.AddTimerFragment
 import com.github.komarnicki.thomas.ringtimer.model.Timer
-import com.github.komarnicki.thomas.ringtimer.model.TimerDatabaseObject
+import com.github.komarnicki.thomas.ringtimer.service.TimerServiceBinder
+import io.reactivex.disposables.Disposable
 
 class TimerListFragment : LifecycleFragment(), TimersAdapter.TimerClickListener{
 
+    private var binder: TimerServiceBinder? = null
+    private var disposable: Disposable? = null
+    private var viewModel: TimersViewModel? = null
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater?.inflate(R.layout.fragment_timer_list, container, false)
@@ -39,9 +47,9 @@ class TimerListFragment : LifecycleFragment(), TimersAdapter.TimerClickListener{
 
         var adapter: TimersAdapter? = null
 
-        val viewModel = ViewModelProviders.of(activity).get(TimersViewModel::class.java)
+        viewModel = ViewModelProviders.of(activity).get(TimersViewModel::class.java)
 
-        viewModel.timers?.observe(this, Observer {
+        viewModel?.timers?.observe(this, Observer {
             Log.d("TimerListFragment","timers updated, count = ${it?.size}");
             if(adapter == null){
                 adapter = TimersAdapter(it!!, this)
@@ -51,6 +59,7 @@ class TimerListFragment : LifecycleFragment(), TimersAdapter.TimerClickListener{
                 adapter?.notifyDataSetChanged()
             }
         })
+
     }
 
     fun addTimer(){
@@ -62,10 +71,55 @@ class TimerListFragment : LifecycleFragment(), TimersAdapter.TimerClickListener{
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        if(viewModel?.activeTimer != null){
+            bindService(viewModel?.activeTimer)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if(viewModel?.activeTimer != null){
+            unbindService()
+        }
+    }
+
     override fun onTimerClicked(timer: Timer, view: View) {
+        viewModel?.activeTimer = timer;
         val intent = Intent(activity, TimerService::class.java)
         intent.putExtra("timer", timer)
         activity.startService(intent)
+        if(binder == null || binder?.isBinderAlive!!) {
+            activity.bindService(intent, serviceConnection, Service.BIND_AUTO_CREATE)
+        }
     }
 
+    private fun bindService(timer: Timer?){
+        val intent = Intent(activity, TimerService::class.java)
+        intent.putExtra("timer", timer)
+        activity.bindService(intent,serviceConnection, Service.BIND_AUTO_CREATE)
+    }
+
+    private fun unbindService() {
+        activity.unbindService(serviceConnection)
+    }
+
+    val serviceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            binder = service as TimerServiceBinder
+            disposable = binder!!.timerCountDown?.timerObservable?.subscribe({
+                Log.d("TimerListFragment", "Got Progress Update")
+            }, {
+                // error
+            }, {
+                // complete
+                Log.d("TimerListFragment", "OnComplete")
+            })
+        }
+        override fun onServiceDisconnected(name: ComponentName?) {
+            disposable?.dispose()
+        }
+
+    }
 }
