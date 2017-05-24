@@ -108,6 +108,7 @@ class TimerListFragment : LifecycleFragment(), TimersAdapter.TimerClickListener{
     val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             binder = service as TimerServiceBinder
+            disposable?.dispose()
             disposable = binder!!.timerCountDown?.timerObservable?.subscribe({
                 Log.d("TimerListFragment", "Got Progress Update")
             }, {

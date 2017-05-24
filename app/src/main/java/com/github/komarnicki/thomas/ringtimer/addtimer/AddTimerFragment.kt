@@ -33,6 +33,8 @@ class AddTimerFragment : LifecycleFragment(){
         saveButton.setOnClickListener {
             addTimer()
         }
+
+        (view?.findViewById(R.id.add_timer_duration) as TimeInputView).requestFocus()
     }
 
     fun addTimer(){

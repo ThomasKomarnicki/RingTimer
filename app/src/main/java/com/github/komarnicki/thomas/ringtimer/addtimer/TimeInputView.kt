@@ -56,11 +56,13 @@ class TimeInputView : LinearLayout {
         minutesText = view.findViewById(R.id.time_input_min_text) as TextView
         secondsText = view.findViewById(R.id.time_input_sec_text) as TextView
 
-        view.setOnClickListener {
+        view.setOnFocusChangeListener { v, hasFocus ->
 
-                timePadInputView?.visibility = View.VISIBLE
-
+            timePadInputView?.visibility = if(hasFocus) View.VISIBLE else View.GONE
         }
+        view.isFocusable = true
+        view.isFocusableInTouchMode = true
+
 
         view.findViewById(R.id.time_input_delete).setOnClickListener {
             if(numbers.size > 0){

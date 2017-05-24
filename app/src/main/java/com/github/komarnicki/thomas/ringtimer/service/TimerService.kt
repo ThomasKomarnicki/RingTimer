@@ -7,7 +7,6 @@ import android.content.Intent
 import android.os.IBinder
 import android.app.PendingIntent
 import android.content.Context
-import android.os.Bundle
 import android.support.v4.app.NotificationCompat
 import android.util.Log
 import android.widget.RemoteViews
@@ -16,7 +15,6 @@ import com.github.komarnicki.thomas.ringtimer.model.Timer
 import com.github.komarnicki.thomas.ringtimer.model.TimerProgressUpdate
 import com.github.komarnicki.thomas.ringtimer.service.notification.TimerCountDown
 import com.github.komarnicki.thomas.ringtimer.timerlist.TimerListActivity
-import io.reactivex.Observable
 import io.reactivex.Observer
 import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.PublishSubject
@@ -46,16 +44,14 @@ class TimerService : Service() {
         }
 
         override fun onNext(t: TimerProgressUpdate) {
-//            if(binder.timerCountDown!!.running) {
-                Log.d("TimerService", "Got Progress Update ${t.progress}")
-                contentView!!.setTextViewText(R.id.notification_time, t.progress.toString())
-                notificationManager?.notify(ONGOING_NOTIFICATION_ID, notification)
-//            }
-        }
 
-        override fun onError(e: Throwable) {
+            Log.d("TimerService", "Got Progress Update ${t.progress}")
+            contentView!!.setTextViewText(R.id.notification_time, t.progress.toString())
+            notificationManager?.notify(ONGOING_NOTIFICATION_ID, notification)
 
         }
+
+        override fun onError(e: Throwable) {}
 
     }
 
@@ -67,7 +63,10 @@ class TimerService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d("TimerService", "Started Service")
-        if(intent!!.hasExtra("timer")) {
+        if(intent == null){
+            return super.onStartCommand(intent, flags, startId)
+        }
+        if(intent.hasExtra("timer")) {
 
             notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
             showForegroundNotification(intent)
@@ -82,6 +81,7 @@ class TimerService : Service() {
 
             stopForeground(true)
             binder.timerCountDown?.stop()
+            disposable?.dispose()
         }
         return super.onStartCommand(intent, flags, startId)
     }
@@ -117,6 +117,7 @@ class TimerService : Service() {
 
             onStartWithPauseParams.subscribe({
                 binder.timerCountDown!!.toggle()
+
             })
 
             binder.timerCountDown!!.running1.subscribe({
