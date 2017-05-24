@@ -36,11 +36,11 @@ class AddTimerFragment : LifecycleFragment(){
     }
 
     fun addTimer(){
-        val breakTimeEt = (view?.findViewById(R.id.add_timer_break) as EditText);
-        val duration = (view?.findViewById(R.id.add_timer_duration) as EditText).text.toString()
-        val breakTime = breakTimeEt.text.toString()
+        val breakTimeEt = (view?.findViewById(R.id.add_timer_break) as TimeInputView)
+        val duration = (view?.findViewById(R.id.add_timer_duration) as TimeInputView).seconds()
+        val breakTime = breakTimeEt.seconds()
 
-        val timer = Timer(duration.toInt(), breakTime.toInt())
+        val timer = Timer(duration, breakTime)
         val viewModel = ViewModelProviders.of(activity).get(TimersViewModel::class.java)
         viewModel.addTimer(timer)
 

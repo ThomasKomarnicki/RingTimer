@@ -4,6 +4,7 @@ import android.content.Context
 import android.support.constraint.ConstraintLayout
 import android.util.AttributeSet
 import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import com.github.komarnicki.thomas.ringtimer.R
 
@@ -14,8 +15,6 @@ class TimePadInputView : FrameLayout {
     }
 
     var onNumberClickListener: OnNumberClickListener? = null
-
-
 
     constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
         init()
@@ -30,13 +29,14 @@ class TimePadInputView : FrameLayout {
     }
 
     private fun init(){
-        val view = View.inflate(context, R.layout.time_pad_input, this) as ConstraintLayout
-
-        for (i in 0 until view.childCount){
-            view.getChildAt(i).setOnClickListener {
+        val view = View.inflate(context, R.layout.time_pad_input, this) as ViewGroup
+        val constraintLayout = view.getChildAt(0) as ConstraintLayout;
+        for (i in 0 until constraintLayout.childCount){
+            constraintLayout.getChildAt(i).setOnClickListener {
                 onNumberClickListener?.onNumberClicked(it.tag.toString().toInt())
             }
         }
+
     }
 
 }
