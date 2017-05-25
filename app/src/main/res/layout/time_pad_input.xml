@@ -8,12 +8,13 @@
 
     <Button
         android:id="@+id/time_input_1"
+        style="@style/dialpad_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="0dp"
         android:layout_marginTop="0dp"
-        android:text="1"
         android:tag="1"
+        android:text="1"
         app:layout_constraintEnd_toStartOf="@+id/time_input_2"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
@@ -21,38 +22,41 @@
 
     <Button
         android:id="@+id/time_input_2"
+        style="@style/dialpad_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="0dp"
         android:layout_marginStart="0dp"
         android:layout_marginTop="0dp"
-        android:text="2"
         android:tag="2"
+        android:text="2"
         app:layout_constraintEnd_toStartOf="@+id/time_input_3"
         app:layout_constraintStart_toEndOf="@+id/time_input_1"
         app:layout_constraintTop_toTopOf="parent"/>
 
     <Button
         android:id="@+id/time_input_3"
+        style="@style/dialpad_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="0dp"
         android:layout_marginStart="0dp"
         android:layout_marginTop="0dp"
-        android:text="3"
         android:tag="3"
+        android:text="3"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/time_input_2"
         app:layout_constraintTop_toTopOf="parent"/>
 
     <Button
         android:id="@+id/time_input_4"
+        style="@style/dialpad_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="0dp"
         android:layout_marginTop="0dp"
-        android:text="4"
         android:tag="4"
+        android:text="4"
         app:layout_constraintEnd_toStartOf="@+id/time_input_5"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintHorizontal_chainStyle="packed"
@@ -61,25 +65,27 @@
 
     <Button
         android:id="@+id/time_input_5"
+        style="@style/dialpad_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="0dp"
         android:layout_marginStart="0dp"
         android:layout_marginTop="0dp"
-        android:text="5"
         android:tag="5"
+        android:text="5"
         app:layout_constraintEnd_toStartOf="@+id/time_input_6"
         app:layout_constraintStart_toEndOf="@+id/time_input_4"
         app:layout_constraintTop_toBottomOf="@+id/time_input_2"/>
 
     <Button
         android:id="@+id/time_input_6"
+        style="@style/dialpad_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="0dp"
         android:layout_marginTop="0dp"
-        android:text="6"
         android:tag="6"
+        android:text="6"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.636"
         app:layout_constraintStart_toEndOf="@+id/time_input_5"
@@ -87,12 +93,13 @@
 
     <Button
         android:id="@+id/time_input_7"
+        style="@style/dialpad_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="0dp"
         android:layout_marginTop="0dp"
-        android:text="7"
         android:tag="7"
+        android:text="7"
         app:layout_constraintEnd_toStartOf="@+id/time_input_8"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintHorizontal_chainStyle="packed"
@@ -101,26 +108,27 @@
 
     <Button
         android:id="@+id/time_input_8"
+        style="@style/dialpad_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="0dp"
         android:layout_marginTop="0dp"
-        android:text="8"
         android:tag="8"
+        android:text="8"
         app:layout_constraintEnd_toStartOf="@+id/time_input_9"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/time_input_7"
-        app:layout_constraintTop_toBottomOf="@+id/time_input_5"
-        />
+        app:layout_constraintTop_toBottomOf="@+id/time_input_5"/>
 
     <Button
         android:id="@+id/time_input_9"
+        style="@style/dialpad_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="0dp"
         android:layout_marginTop="0dp"
-        android:text="9"
         android:tag="9"
+        android:text="9"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.666"
         app:layout_constraintStart_toEndOf="@+id/time_input_8"
@@ -128,13 +136,14 @@
 
     <Button
         android:id="@+id/time_input_0"
+        style="@style/dialpad_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="0dp"
         android:layout_marginStart="0dp"
         android:layout_marginTop="0dp"
-        android:text="0"
         android:tag="0"
+        android:text="0"
         app:layout_constraintEnd_toStartOf="@+id/time_input_9"
         app:layout_constraintStart_toStartOf="@+id/time_input_8"
         app:layout_constraintTop_toBottomOf="@+id/time_input_8"/>

@@ -37,21 +37,27 @@ class TimeInputView : LinearLayout {
     }
 
     constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
-
+        init(attrs, defStyleAttr)
     }
 
     constructor(context: Context, attrs: AttributeSet? = null) : super(context, attrs) {
-
+        init(attrs)
     }
 
     constructor(context: Context) : super(context) {
-
+        init(null)
     }
 
-    init{
+
+    private fun init(attrs: AttributeSet?, defStyle: Int = 0){
         orientation = VERTICAL
         val view = View.inflate(context, R.layout.time_input, null) as ConstraintLayout
         addView(view)
+
+        val a = context.obtainStyledAttributes(attrs, R.styleable.TimeInputView, defStyle, 0)
+        val label = view.findViewById(R.id.time_input_label) as TextView
+        label.text = a.getString(R.styleable.TimeInputView_label_text)
+        a.recycle()
 
         minutesText = view.findViewById(R.id.time_input_min_text) as TextView
         secondsText = view.findViewById(R.id.time_input_sec_text) as TextView
@@ -85,7 +91,6 @@ class TimeInputView : LinearLayout {
         }
         timePadInputView?.visibility = View.GONE
         displayTime()
-
 
     }
 

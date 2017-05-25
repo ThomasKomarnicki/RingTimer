@@ -25,9 +25,9 @@ class AddTimerFragment : LifecycleFragment(){
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        val toolbar: Toolbar = view!!.findViewById(R.id.add_timer_toolbar) as Toolbar
-        toolbar.setNavigationOnClickListener { activity.onBackPressed() }
-        toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_material)
+//        val toolbar: Toolbar = view!!.findViewById(R.id.add_timer_toolbar) as Toolbar
+//        toolbar.setNavigationOnClickListener { activity.onBackPressed() }
+//        toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_material)
 
         val saveButton: Button = view!!.findViewById(R.id.add_timer_save) as Button;
         saveButton.setOnClickListener {
