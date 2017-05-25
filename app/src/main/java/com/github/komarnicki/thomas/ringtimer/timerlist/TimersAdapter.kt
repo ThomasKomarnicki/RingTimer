@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.github.komarnicki.thomas.ringtimer.R
 import com.github.komarnicki.thomas.ringtimer.model.Timer
+import io.reactivex.Observable
+import io.reactivex.subjects.PublishSubject
 
 class TimersAdapter(var timers: List<Timer>, var timerClickListener: TimerClickListener) : RecyclerView.Adapter<TimersAdapter.VH>() {
 
@@ -15,7 +17,13 @@ class TimersAdapter(var timers: List<Timer>, var timerClickListener: TimerClickL
         viewHolder.durationTime.text = displayDuration(t.duration)
         viewHolder.breakTime.text = displayDuration(t.breakTime)
         viewHolder.itemView.setOnClickListener {
-            timerClickListener.onTimerClicked(timers[position], it)
+            // todo connect to TimerPlaybackView
+            val timerPlaybackSubject = PublishSubject.create<Boolean> {
+                it.onNext(true)
+                // todo
+            }
+
+            timerClickListener.onTimerClicked(timers[position], it, timerPlaybackSubject)
         }
     }
 
@@ -46,6 +54,6 @@ class TimersAdapter(var timers: List<Timer>, var timerClickListener: TimerClickL
     }
 
     interface TimerClickListener{
-        fun onTimerClicked(timer: Timer, view: View)
+        fun onTimerClicked(timer: Timer, view: View, observer: Observable<Boolean>)
     }
 }

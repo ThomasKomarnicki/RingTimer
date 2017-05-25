@@ -22,6 +22,7 @@ import com.github.komarnicki.thomas.ringtimer.service.TimerService
 import com.github.komarnicki.thomas.ringtimer.addtimer.AddTimerFragment
 import com.github.komarnicki.thomas.ringtimer.model.Timer
 import com.github.komarnicki.thomas.ringtimer.service.TimerServiceBinder
+import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 
 class TimerListFragment : LifecycleFragment(), TimersAdapter.TimerClickListener{
@@ -29,6 +30,9 @@ class TimerListFragment : LifecycleFragment(), TimersAdapter.TimerClickListener{
     private var binder: TimerServiceBinder? = null
     private var disposable: Disposable? = null
     private var viewModel: TimersViewModel? = null
+
+    private var playPauseObservable: Observable<Boolean>? = null
+//    private var playPauseDisposable: Disposable? = null
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater?.inflate(R.layout.fragment_timer_list, container, false)
@@ -85,14 +89,19 @@ class TimerListFragment : LifecycleFragment(), TimersAdapter.TimerClickListener{
         }
     }
 
-    override fun onTimerClicked(timer: Timer, view: View) {
-        viewModel?.activeTimer = timer;
+    override fun onTimerClicked(timer: Timer, view: View, observable: Observable<Boolean>) {
+        viewModel?.activeTimer = timer
         val intent = Intent(activity, TimerService::class.java)
         intent.putExtra("timer", timer)
         activity.startService(intent)
+
+//        playPauseDisposable?.dispose()
+
         if(binder == null || binder?.isBinderAlive!!) {
             activity.bindService(intent, serviceConnection, Service.BIND_AUTO_CREATE)
         }
+
+        playPauseObservable = observable
     }
 
     private fun bindService(timer: Timer?){
@@ -117,6 +126,7 @@ class TimerListFragment : LifecycleFragment(), TimersAdapter.TimerClickListener{
                 // complete
                 Log.d("TimerListFragment", "OnComplete")
             })
+            playPauseObservable?.subscribe(binder!!.timerCountDown?.running1)
         }
         override fun onServiceDisconnected(name: ComponentName?) {
             disposable?.dispose()

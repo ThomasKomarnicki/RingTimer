@@ -55,10 +55,10 @@ class TimerService : Service() {
 
     }
 
-    val onStartWithPauseParams =  PublishSubject.create<Any>()
+    val onStartWithPauseParams = PublishSubject.create<Any>()!!
 
     override fun onBind(intent: Intent?): IBinder {
-        return binder;
+        return binder
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
