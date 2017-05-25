@@ -37,18 +37,18 @@ class TimeInputView : LinearLayout {
     }
 
     constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
-        init()
+
     }
 
     constructor(context: Context, attrs: AttributeSet? = null) : super(context, attrs) {
-        init()
+
     }
 
     constructor(context: Context) : super(context) {
-        init()
+
     }
 
-    private fun init(){
+    init{
         orientation = VERTICAL
         val view = View.inflate(context, R.layout.time_input, null) as ConstraintLayout
         addView(view)
@@ -56,13 +56,12 @@ class TimeInputView : LinearLayout {
         minutesText = view.findViewById(R.id.time_input_min_text) as TextView
         secondsText = view.findViewById(R.id.time_input_sec_text) as TextView
 
-        view.setOnFocusChangeListener { v, hasFocus ->
+        view.setOnFocusChangeListener { _, hasFocus ->
 
-            timePadInputView?.visibility = if(hasFocus) View.VISIBLE else View.GONE
+            if(hasFocus) showNumberPad() else hideNumberPad()
         }
         view.isFocusable = true
         view.isFocusableInTouchMode = true
-
 
         view.findViewById(R.id.time_input_delete).setOnClickListener {
             if(numbers.size > 0){
@@ -86,6 +85,8 @@ class TimeInputView : LinearLayout {
         }
         timePadInputView?.visibility = View.GONE
         displayTime()
+
+
     }
 
     private fun displayTime() {
@@ -95,5 +96,14 @@ class TimeInputView : LinearLayout {
     }
 
     private fun numberOrZero(index:Int):Int = if(index < numbers.size) numbers[index] else 0
+
+    private fun hideNumberPad(){
+        timePadInputView?.visibility = View.GONE
+    }
+
+    private fun showNumberPad(){
+        timePadInputView?.visibility = View.VISIBLE
+
+    }
 
 }
