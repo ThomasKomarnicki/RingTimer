@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.github.komarnicki.thomas.ringtimer.R
 import com.github.komarnicki.thomas.ringtimer.model.Timer
+import com.github.komarnicki.thomas.ringtimer.model.TimerProgressUpdate
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.PublishSubject
@@ -16,23 +17,30 @@ class TimersAdapter(var timers: List<Timer>, var timerClickListener: TimerClickL
     private val TIMER_ROW = 0
     private val TIMER_PLAYBACK = 1
 
-    var timerPlaybackSubject: PublishSubject<Boolean>? = null
-    var runningTimer: Timer? = null
-    var runningTimerPos: Int = 0
+    private var timerPlaybackSubject: PublishSubject<Boolean>? = null
+    private var runningTimer: Timer? = null
+    var runningTimerPos: Int = Int.MAX_VALUE
+
+    var progressObservable: Observable<TimerProgressUpdate>? = null
 
     override fun onBindViewHolder(viewHolder: RecyclerView.ViewHolder, position: Int) {
         if(viewHolder is VH) {
-            val t = timers[position]
+            val t = timers[if(position < runningTimerPos) position else position + 1]
             viewHolder.durationTime.text = displayDuration(t.duration)
             viewHolder.breakTime.text = displayDuration(t.breakTime)
             viewHolder.itemView.setOnClickListener {
                 // todo connect to TimerPlaybackView
+                runningTimerPos = position
+                runningTimer = t
                 timerPlaybackSubject = PublishSubject.create()
-
                 timerClickListener.onTimerClicked(timers[position], it, timerPlaybackSubject!!)
+                notifyItemInserted(position +1)
             }
         }else if(viewHolder is TimerPlaybackViewHolder){
-            viewHolder.timerPlaybackView.playPauseObservable.subscribe(timerPlaybackSubject)
+            if(progressObservable != null) {
+                viewHolder.timerPlaybackView.playPauseObservable.subscribe(timerPlaybackSubject)
+//                viewHolder.timerPlaybackView.setTimerProgressObservable(progressObservable)
+            }
         }
     }
 
@@ -40,7 +48,7 @@ class TimersAdapter(var timers: List<Timer>, var timerClickListener: TimerClickL
         if(viewType == TIMER_ROW) {
             return VH(LayoutInflater.from(viewGroup.context).inflate(R.layout.row_timers, viewGroup, false))
         }else{
-            return TimerPlaybackViewHolder(TimerPlaybackView(viewGroup.context))
+            return TimerPlaybackViewHolder(LayoutInflater.from(viewGroup.context).inflate(R.layout.row_timer_playback, viewGroup, false))
         }
     }
 
@@ -59,7 +67,7 @@ class TimersAdapter(var timers: List<Timer>, var timerClickListener: TimerClickL
     }
 
     class TimerPlaybackViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var timerPla ybackView : TimerPlaybackView = itemView.findViewById(0) as TimerPlaybackView
+        var timerPlaybackView : TimerPlaybackView = itemView.findViewById(R.id.row_timer_timer_playback) as TimerPlaybackView
     }
 
     fun displayDuration(seconds: Int): String {

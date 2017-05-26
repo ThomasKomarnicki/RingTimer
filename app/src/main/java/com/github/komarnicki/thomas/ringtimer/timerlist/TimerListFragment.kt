@@ -28,8 +28,10 @@ import io.reactivex.disposables.Disposable
 class TimerListFragment : LifecycleFragment(), TimersAdapter.TimerClickListener{
 
     private var binder: TimerServiceBinder? = null
-    private var disposable: Disposable? = null
+//    private var disposable: Disposable? = null
     private var viewModel: TimersViewModel? = null
+
+    private var adapter: TimersAdapter? = null
 
     private var playPauseObservable: Observable<Boolean>? = null
 //    private var playPauseDisposable: Disposable? = null
@@ -48,8 +50,6 @@ class TimerListFragment : LifecycleFragment(), TimersAdapter.TimerClickListener{
         addTimerButton.setOnClickListener({
             addTimer()
         })
-
-        var adapter: TimersAdapter? = null
 
         viewModel = ViewModelProviders.of(activity).get(TimersViewModel::class.java)
 
@@ -91,17 +91,16 @@ class TimerListFragment : LifecycleFragment(), TimersAdapter.TimerClickListener{
 
     override fun onTimerClicked(timer: Timer, view: View, observable: Observable<Boolean>) {
         viewModel?.activeTimer = timer
+        playPauseObservable = observable
+
         val intent = Intent(activity, TimerService::class.java)
         intent.putExtra("timer", timer)
         activity.startService(intent)
-
-//        playPauseDisposable?.dispose()
 
         if(binder == null || binder?.isBinderAlive!!) {
             activity.bindService(intent, serviceConnection, Service.BIND_AUTO_CREATE)
         }
 
-        playPauseObservable = observable
     }
 
     private fun bindService(timer: Timer?){
@@ -117,19 +116,14 @@ class TimerListFragment : LifecycleFragment(), TimersAdapter.TimerClickListener{
     val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             binder = service as TimerServiceBinder
-            disposable?.dispose()
-            disposable = binder!!.timerCountDown?.timerObservable?.subscribe({
-                Log.d("TimerListFragment", "Got Progress Update")
-            }, {
-                // error
-            }, {
-                // complete
-                Log.d("TimerListFragment", "OnComplete")
-            })
+//            disposable?.dispose()
+
+            adapter?.progressObservable = binder!!.timerCountDown?.timerObservable
+            adapter?.notifyItemChanged(adapter!!.runningTimerPos + 1)
             playPauseObservable?.subscribe(binder!!.timerCountDown?.running1)
         }
         override fun onServiceDisconnected(name: ComponentName?) {
-            disposable?.dispose()
+//            disposable?.dispose()
         }
 
     }
