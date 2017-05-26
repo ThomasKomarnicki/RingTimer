@@ -28,13 +28,8 @@ import io.reactivex.disposables.Disposable
 class TimerListFragment : LifecycleFragment(), TimersAdapter.TimerClickListener{
 
     private var binder: TimerServiceBinder? = null
-//    private var disposable: Disposable? = null
     private var viewModel: TimersViewModel? = null
-
     private var adapter: TimersAdapter? = null
-
-    private var playPauseObservable: Observable<Boolean>? = null
-//    private var playPauseDisposable: Disposable? = null
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater?.inflate(R.layout.fragment_timer_list, container, false)
@@ -89,9 +84,8 @@ class TimerListFragment : LifecycleFragment(), TimersAdapter.TimerClickListener{
         }
     }
 
-    override fun onTimerClicked(timer: Timer, view: View, observable: Observable<Boolean>) {
+    override fun onTimerClicked(timer: Timer, view: View) {
         viewModel?.activeTimer = timer
-        playPauseObservable = observable
 
         val intent = Intent(activity, TimerService::class.java)
         intent.putExtra("timer", timer)
@@ -120,7 +114,7 @@ class TimerListFragment : LifecycleFragment(), TimersAdapter.TimerClickListener{
 
             adapter?.progressObservable = binder!!.timerCountDown?.timerObservable
             adapter?.notifyItemChanged(adapter!!.runningTimerPos + 1)
-            playPauseObservable?.subscribe(binder!!.timerCountDown?.running1)
+//            playPauseObservable?.subscribe(binder!!.timerCountDown?.running1)
         }
         override fun onServiceDisconnected(name: ComponentName?) {
 //            disposable?.dispose()

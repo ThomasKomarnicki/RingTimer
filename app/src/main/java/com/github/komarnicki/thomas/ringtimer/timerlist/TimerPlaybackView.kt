@@ -9,9 +9,11 @@ import android.widget.ImageButton
 import android.widget.TextView
 import com.github.komarnicki.thomas.ringtimer.R
 import com.github.komarnicki.thomas.ringtimer.model.TimerProgressUpdate
+import com.github.komarnicki.thomas.ringtimer.model.TimerUpdateType
 import io.reactivex.Observable
 import io.reactivex.Observer
 import io.reactivex.disposables.Disposable
+import io.reactivex.subjects.BehaviorSubject
 
 class TimerPlaybackView : FrameLayout {
 
@@ -22,16 +24,6 @@ class TimerPlaybackView : FrameLayout {
     private var playing = true
     private val playIcon = R.drawable.ic_play_arrow_black_24dp
     private val pauseIcon = R.drawable.ic_pause_black_24dp
-
-
-    var playPauseObservable: Observable<Boolean> = Observable.create<Boolean> { o ->
-        Log.d(tag, "playPauseObservable subscribed to")
-        playPauseButton?.setOnClickListener {
-            playing = !playing
-            playPauseButton?.setImageResource(if(playing) pauseIcon else playIcon)
-            o.onNext(playing)
-        }
-    }
 
     constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
 
@@ -52,8 +44,20 @@ class TimerPlaybackView : FrameLayout {
         playPauseButton?.setImageResource(pauseIcon)
     }
 
-    fun setTimerProgressObservable(timerProgressObservable: Observable<TimerProgressUpdate>?){
-        timerProgressObservable?.subscribe(timerProgressObserver)
+    fun setTimerProgressObservable(timerProgressObservable: BehaviorSubject<TimerProgressUpdate>?){
+        timerProgressObservable?.subscribe{
+            if(it.updateType == TimerUpdateType.PROGRESS){
+                Log.d(tag, "onNext()")
+                timeText?.text = it.elapsedTime
+            }
+        }
+
+        playPauseButton?.setOnClickListener {
+            playing = !playing
+            playPauseButton?.setImageResource(if(playing) pauseIcon else playIcon)
+            timerProgressObservable?.onNext(timerProgressObservable.value.copy(updateType = if(playing) TimerUpdateType.PLAY else TimerUpdateType.PAUSE))
+        }
+
         Log.d(tag, "timer progress subscribed to")
     }
 

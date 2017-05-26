@@ -10,6 +10,7 @@ import com.github.komarnicki.thomas.ringtimer.model.Timer
 import com.github.komarnicki.thomas.ringtimer.model.TimerProgressUpdate
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
+import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
 class TimersAdapter(var timers: List<Timer>, var timerClickListener: TimerClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -17,11 +18,11 @@ class TimersAdapter(var timers: List<Timer>, var timerClickListener: TimerClickL
     private val TIMER_ROW = 0
     private val TIMER_PLAYBACK = 1
 
-    private var timerPlaybackSubject: PublishSubject<Boolean>? = null
+//    private var timerPlaybackSubject: BehaviorSubject<Boolean>? = null
     private var runningTimer: Timer? = null
     var runningTimerPos: Int = Int.MAX_VALUE
 
-    var progressObservable: Observable<TimerProgressUpdate>? = null
+    var progressObservable: BehaviorSubject<TimerProgressUpdate>? = null
 
     override fun onBindViewHolder(viewHolder: RecyclerView.ViewHolder, position: Int) {
         if(viewHolder is VH) {
@@ -32,14 +33,13 @@ class TimersAdapter(var timers: List<Timer>, var timerClickListener: TimerClickL
                 // todo connect to TimerPlaybackView
                 runningTimerPos = position
                 runningTimer = t
-                timerPlaybackSubject = PublishSubject.create()
-                timerClickListener.onTimerClicked(timers[position], it, timerPlaybackSubject!!)
+                timerClickListener.onTimerClicked(t, it)
                 notifyItemInserted(position +1)
             }
         }else if(viewHolder is TimerPlaybackViewHolder){
             if(progressObservable != null) {
-                viewHolder.timerPlaybackView.playPauseObservable.subscribe(timerPlaybackSubject)
-//                viewHolder.timerPlaybackView.setTimerProgressObservable(progressObservable)
+                viewHolder.timerPlaybackView.setTimerProgressObservable(progressObservable)
+
             }
         }
     }
@@ -85,6 +85,6 @@ class TimersAdapter(var timers: List<Timer>, var timerClickListener: TimerClickL
     }
 
     interface TimerClickListener{
-        fun onTimerClicked(timer: Timer, view: View, observer: Observable<Boolean>)
+        fun onTimerClicked(timer: Timer, view: View)
     }
 }

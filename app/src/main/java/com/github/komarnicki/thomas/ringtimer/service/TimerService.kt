@@ -15,7 +15,6 @@ import com.github.komarnicki.thomas.ringtimer.model.Timer
 import com.github.komarnicki.thomas.ringtimer.model.TimerProgressUpdate
 import com.github.komarnicki.thomas.ringtimer.service.notification.TimerCountDown
 import com.github.komarnicki.thomas.ringtimer.timerlist.TimerListActivity
-import io.reactivex.Observer
 import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.PublishSubject
 
@@ -33,30 +32,6 @@ class TimerService : Service() {
     private var notification : Notification? = null
 
     private var started = false
-
-    private var timerObserver: Observer<TimerProgressUpdate> = object : Observer<TimerProgressUpdate> {
-        override fun onComplete() {
-            Log.d("TimerService", "Observer completed")
-            disposable?.dispose()
-            disposable = null
-            stopSelf()
-        }
-
-        override fun onSubscribe(d: Disposable) {
-            disposable = d;
-        }
-
-        override fun onNext(t: TimerProgressUpdate) {
-
-            Log.d("TimerService", "Got Progress Update ${t.progress}")
-            contentView!!.setTextViewText(R.id.notification_time, t.progress.toString())
-            notificationManager?.notify(ONGOING_NOTIFICATION_ID, notification)
-
-        }
-
-        override fun onError(e: Throwable) {}
-
-    }
 
     val onStartWithPauseParams = PublishSubject.create<Any>()!!
 
@@ -115,27 +90,34 @@ class TimerService : Service() {
         }else {
             binder.timerCountDown = TimerCountDown(timer)
             disposable?.dispose()
-            binder.timerCountDown!!.timerObservable.subscribe(timerObserver)
+//            binder.timerCountDown!!.timerObservable.subscribe(timerObserver)
 
             onStartWithPauseParams.subscribe({
                 binder.timerCountDown!!.toggle()
             })
 
-            binder.timerCountDown!!.running1.subscribe({
-                if (!it) {
-                    stopForeground(false)
-                } else {
-                    startForeground(ONGOING_NOTIFICATION_ID, notification)
+            binder.timerCountDown!!.timerObservable.subscribe {
+
+                if(it.updateType == TimerProgressUpdate.UpdateType.PLAY || it.updateType == TimerProgressUpdate.UpdateType.PAUSE){
+                    val playing = it.updateType == TimerProgressUpdate.UpdateType.PLAY
+                    if (!playing) {
+                        stopForeground(false)
+                    } else {
+                        startForeground(ONGOING_NOTIFICATION_ID, notification)
+                    }
+                    contentView?.setImageViewResource(R.id.notification_play_pause, if(playing) pauseIcon else playIcon)
+                    notificationManager?.notify(ONGOING_NOTIFICATION_ID, notification)
+                }else if(it.updateType == TimerProgressUpdate.UpdateType.PROGRESS){
+                    Log.d("TimerService", "Got Progress Update ${it.progress}")
+                    contentView!!.setTextViewText(R.id.notification_time, it.progress.toString())
+                    notificationManager?.notify(ONGOING_NOTIFICATION_ID, notification)
                 }
-                contentView?.setImageViewResource(R.id.notification_play_pause, if(binder.timerCountDown!!.running1.value) pauseIcon else playIcon)
-                notificationManager?.notify(ONGOING_NOTIFICATION_ID, notification)
-            })
+            }
             started = true
         }
         binder.timerCountDown!!.restart()
 
         configPlayPause(contentView)
-
     }
 
     private fun configPlayPause(remoteViews: RemoteViews?){
