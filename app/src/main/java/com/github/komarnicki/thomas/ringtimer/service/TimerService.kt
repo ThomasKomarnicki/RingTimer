@@ -23,6 +23,9 @@ import io.reactivex.subjects.PublishSubject
 class TimerService : Service() {
     val ONGOING_NOTIFICATION_ID: Int = 89
 
+    private val playIcon = R.drawable.ic_play_arrow_black_24dp
+    private val pauseIcon = R.drawable.ic_pause_black_24dp
+
     private var binder: TimerServiceBinder = TimerServiceBinder()
     private var disposable: Disposable? = null;
     private var contentView: RemoteViews? = null
@@ -75,7 +78,6 @@ class TimerService : Service() {
 
             Log.d("TimerService", "paused_play")
             onStartWithPauseParams.onNext(Any())
-            configPlayPause(contentView)
 
         }else if(intent.hasExtra("stop")){
 
@@ -117,7 +119,6 @@ class TimerService : Service() {
 
             onStartWithPauseParams.subscribe({
                 binder.timerCountDown!!.toggle()
-
             })
 
             binder.timerCountDown!!.running1.subscribe({
@@ -126,6 +127,8 @@ class TimerService : Service() {
                 } else {
                     startForeground(ONGOING_NOTIFICATION_ID, notification)
                 }
+                contentView?.setImageViewResource(R.id.notification_play_pause, if(binder.timerCountDown!!.running1.value) pauseIcon else playIcon)
+                notificationManager?.notify(ONGOING_NOTIFICATION_ID, notification)
             })
             started = true
         }
@@ -140,5 +143,6 @@ class TimerService : Service() {
         intent.putExtra("pause", true)
         val pausePendingIntent = PendingIntent.getService(this, 4, intent, 0)
         remoteViews?.setOnClickPendingIntent(R.id.notification_play_pause, pausePendingIntent)
+        remoteViews?.setImageViewResource(R.id.notification_play_pause, pauseIcon)
     }
 }

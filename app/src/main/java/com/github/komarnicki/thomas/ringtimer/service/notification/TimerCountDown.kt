@@ -4,6 +4,7 @@ import android.util.Log
 import com.github.komarnicki.thomas.ringtimer.model.Timer
 import com.github.komarnicki.thomas.ringtimer.model.TimerProgressUpdate
 import io.reactivex.Observable
+import io.reactivex.observables.ConnectableObservable
 import io.reactivex.subjects.BehaviorSubject
 import java.util.concurrent.TimeUnit
 
@@ -21,7 +22,7 @@ class TimerCountDown(var timer:Timer) {
             TimerProgressUpdate(timerProgress.toInt(), timer)
         }
         .takeUntil(running1.materialize().filter { it.isOnComplete })
-        .share()
+            .share()
 
     fun restart() {
         Log.d("TimerService","Restarted timer")

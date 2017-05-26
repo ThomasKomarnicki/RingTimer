@@ -10,7 +10,8 @@ import android.widget.TextView
 import com.github.komarnicki.thomas.ringtimer.R
 import com.github.komarnicki.thomas.ringtimer.model.TimerProgressUpdate
 import io.reactivex.Observable
-import io.reactivex.observers.DefaultObserver
+import io.reactivex.Observer
+import io.reactivex.disposables.Disposable
 
 class TimerPlaybackView : FrameLayout {
 
@@ -23,7 +24,7 @@ class TimerPlaybackView : FrameLayout {
     private val pauseIcon = R.drawable.ic_pause_black_24dp
 
 
-    var playPauseObservable = Observable.create<Boolean> { o ->
+    var playPauseObservable: Observable<Boolean> = Observable.create<Boolean> { o ->
         Log.d(tag, "playPauseObservable subscribed to")
         playPauseButton?.setOnClickListener {
             playing = !playing
@@ -56,10 +57,14 @@ class TimerPlaybackView : FrameLayout {
         Log.d(tag, "timer progress subscribed to")
     }
 
-    private val timerProgressObserver = object : DefaultObserver<TimerProgressUpdate>(){
+    private val timerProgressObserver = object : Observer<TimerProgressUpdate>{
+        override fun onSubscribe(d: Disposable?) {
+            Log.d(tag, "onSubscribe")
+        }
+
         override fun onComplete() {
             Log.d(tag, "onComplete()")
-            cancel()
+
         }
 
         override fun onError(e: Throwable) {
@@ -70,6 +75,7 @@ class TimerPlaybackView : FrameLayout {
         override fun onNext(t: TimerProgressUpdate) {
             Log.d(tag, "onNext()")
             timeText?.text = t.elapsedTime
+
         }
     }
 
