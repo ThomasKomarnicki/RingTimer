@@ -13,7 +13,12 @@ import io.reactivex.subjects.PublishSubject
 
 class TimersAdapter(var timers: List<Timer>, var timerClickListener: TimerClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
+    private val TIMER_ROW = 0
+    private val TIMER_PLAYBACK = 1
+
     var timerPlaybackSubject: PublishSubject<Boolean>? = null
+    var runningTimer: Timer? = null
+    var runningTimerPos: Int = 0
 
     override fun onBindViewHolder(viewHolder: RecyclerView.ViewHolder, position: Int) {
         if(viewHolder is VH) {
@@ -32,10 +37,21 @@ class TimersAdapter(var timers: List<Timer>, var timerClickListener: TimerClickL
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return VH(LayoutInflater.from(viewGroup.context).inflate(R.layout.row_timers, viewGroup, false));
+        if(viewType == TIMER_ROW) {
+            return VH(LayoutInflater.from(viewGroup.context).inflate(R.layout.row_timers, viewGroup, false))
+        }else{
+            return TimerPlaybackViewHolder(TimerPlaybackView(viewGroup.context))
+        }
     }
 
-    override fun getItemCount(): Int = timers.size
+    override fun getItemViewType(position: Int): Int {
+        if(runningTimer != null && (position == (runningTimerPos + 1))){
+            return TIMER_PLAYBACK
+        }
+        return TIMER_ROW
+    }
+
+    override fun getItemCount(): Int = timers.size + if(runningTimer != null) 1 else 0
 
     class VH(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var durationTime : TextView = itemView.findViewById(R.id.row_timer_duration) as TextView
@@ -43,7 +59,7 @@ class TimersAdapter(var timers: List<Timer>, var timerClickListener: TimerClickL
     }
 
     class TimerPlaybackViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var timerPlaybackView : TimerPlaybackView = itemView.findViewById(0) as TimerPlaybackView
+        var timerPla ybackView : TimerPlaybackView = itemView.findViewById(0) as TimerPlaybackView
     }
 
     fun displayDuration(seconds: Int): String {
