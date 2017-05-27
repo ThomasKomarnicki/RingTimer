@@ -8,7 +8,7 @@ data class TimerProgressUpdate(val progress: Int, val timer: Timer, val updateTy
 
 
 
-    var elapsedTime = "${progress/60}:${progress%60}"
+    var elapsedTime = "${progress/60}:${if(progress%60 < 10) "0" else ""}${progress%60}"
 
 }
 

@@ -10,9 +10,6 @@ import android.widget.TextView
 import com.github.komarnicki.thomas.ringtimer.R
 import com.github.komarnicki.thomas.ringtimer.model.TimerProgressUpdate
 import com.github.komarnicki.thomas.ringtimer.model.TimerUpdateType
-import io.reactivex.Observable
-import io.reactivex.Observer
-import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.BehaviorSubject
 
 class TimerPlaybackView : FrameLayout {
@@ -58,29 +55,6 @@ class TimerPlaybackView : FrameLayout {
             timerProgressObservable?.onNext(timerProgressObservable.value.copy(updateType = if(playing) TimerUpdateType.PLAY else TimerUpdateType.PAUSE))
         }
 
-        Log.d(tag, "timer progress subscribed to")
-    }
-
-    private val timerProgressObserver = object : Observer<TimerProgressUpdate>{
-        override fun onSubscribe(d: Disposable?) {
-            Log.d(tag, "onSubscribe")
-        }
-
-        override fun onComplete() {
-            Log.d(tag, "onComplete()")
-
-        }
-
-        override fun onError(e: Throwable) {
-            e.printStackTrace()
-        }
-
-
-        override fun onNext(t: TimerProgressUpdate) {
-            Log.d(tag, "onNext()")
-            timeText?.text = t.elapsedTime
-
-        }
     }
 
 }

@@ -8,6 +8,7 @@ import android.widget.TextView
 import com.github.komarnicki.thomas.ringtimer.R
 import com.github.komarnicki.thomas.ringtimer.model.Timer
 import com.github.komarnicki.thomas.ringtimer.model.TimerProgressUpdate
+import com.github.komarnicki.thomas.ringtimer.model.TimerUpdateType
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.BehaviorSubject
@@ -18,7 +19,6 @@ class TimersAdapter(var timers: List<Timer>, var timerClickListener: TimerClickL
     private val TIMER_ROW = 0
     private val TIMER_PLAYBACK = 1
 
-//    private var timerPlaybackSubject: BehaviorSubject<Boolean>? = null
     private var runningTimer: Timer? = null
     var runningTimerPos: Int = Int.MAX_VALUE
 
@@ -30,19 +30,46 @@ class TimersAdapter(var timers: List<Timer>, var timerClickListener: TimerClickL
             viewHolder.durationTime.text = displayDuration(t.duration)
             viewHolder.breakTime.text = displayDuration(t.breakTime)
             viewHolder.itemView.setOnClickListener {
-                // todo connect to TimerPlaybackView
-                runningTimerPos = position
-                runningTimer = t
-                timerClickListener.onTimerClicked(t, it)
-                notifyItemInserted(position +1)
-            }
+                if(progressObservable == null){
+                    runningTimerPos = position
+                    runningTimer = t
+                    timerClickListener.onTimerClicked(t, it)
+                    notifyItemInserted(position + 1)
+                }else {
+                    if(runningTimer == progressObservable!!.value?.timer){
+                        // do nothing?
+                    }else{
+                        removePlaybackRow(position)
+                        addTimerPlaybackRow(position, t, viewHolder.itemView)
+                    }
+                }
+
+        }
         }else if(viewHolder is TimerPlaybackViewHolder){
             if(progressObservable != null) {
                 viewHolder.timerPlaybackView.setTimerProgressObservable(progressObservable)
-
+                progressObservable?.subscribe {
+                    if(it.updateType == TimerUpdateType.DONE){
+                        removePlaybackRow(position)
+                    }
+                }
             }
         }
     }
+
+    private fun removePlaybackRow(position: Int){
+        runningTimer = null
+        runningTimerPos = Int.MAX_VALUE
+        notifyItemRemoved(position)
+    }
+
+    private fun addTimerPlaybackRow(position: Int, timer: Timer, view: View){
+        runningTimerPos = position
+        runningTimer = timer
+        timerClickListener.onTimerClicked(timer, view)
+        notifyItemInserted(position + 1)
+    }
+
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         if(viewType == TIMER_ROW) {

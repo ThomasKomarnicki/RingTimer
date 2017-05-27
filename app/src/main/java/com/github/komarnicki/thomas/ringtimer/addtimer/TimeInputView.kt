@@ -91,7 +91,6 @@ class TimeInputView : LinearLayout {
         }
         timePadInputView?.visibility = View.GONE
         displayTime()
-
     }
 
     private fun displayTime() {

@@ -12,11 +12,10 @@ import android.util.Log
 import android.widget.RemoteViews
 import com.github.komarnicki.thomas.ringtimer.R
 import com.github.komarnicki.thomas.ringtimer.model.Timer
-import com.github.komarnicki.thomas.ringtimer.model.TimerProgressUpdate
+import com.github.komarnicki.thomas.ringtimer.model.TimerUpdateType
 import com.github.komarnicki.thomas.ringtimer.service.notification.TimerCountDown
 import com.github.komarnicki.thomas.ringtimer.timerlist.TimerListActivity
 import io.reactivex.disposables.Disposable
-import io.reactivex.subjects.PublishSubject
 
 
 class TimerService : Service() {
@@ -32,8 +31,6 @@ class TimerService : Service() {
     private var notification : Notification? = null
 
     private var started = false
-
-    val onStartWithPauseParams = PublishSubject.create<Any>()!!
 
     override fun onBind(intent: Intent?): IBinder {
         return binder
@@ -52,7 +49,7 @@ class TimerService : Service() {
         }else if(intent.hasExtra("pause")){
 
             Log.d("TimerService", "paused_play")
-            onStartWithPauseParams.onNext(Any())
+            binder.timerCountDown!!.toggle()
 
         }else if(intent.hasExtra("stop")){
 
@@ -92,14 +89,10 @@ class TimerService : Service() {
             disposable?.dispose()
 //            binder.timerCountDown!!.timerObservable.subscribe(timerObserver)
 
-            onStartWithPauseParams.subscribe({
-                binder.timerCountDown!!.toggle()
-            })
-
             binder.timerCountDown!!.timerObservable.subscribe {
 
-                if(it.updateType == TimerProgressUpdate.UpdateType.PLAY || it.updateType == TimerProgressUpdate.UpdateType.PAUSE){
-                    val playing = it.updateType == TimerProgressUpdate.UpdateType.PLAY
+                if(it.updateType == TimerUpdateType.PLAY || it.updateType == TimerUpdateType.PAUSE){
+                    val playing = it.updateType == TimerUpdateType.PLAY
                     if (!playing) {
                         stopForeground(false)
                     } else {
@@ -107,7 +100,10 @@ class TimerService : Service() {
                     }
                     contentView?.setImageViewResource(R.id.notification_play_pause, if(playing) pauseIcon else playIcon)
                     notificationManager?.notify(ONGOING_NOTIFICATION_ID, notification)
-                }else if(it.updateType == TimerProgressUpdate.UpdateType.PROGRESS){
+
+
+
+                }else if(it.updateType == TimerUpdateType.PROGRESS){
                     Log.d("TimerService", "Got Progress Update ${it.progress}")
                     contentView!!.setTextViewText(R.id.notification_time, it.progress.toString())
                     notificationManager?.notify(ONGOING_NOTIFICATION_ID, notification)
