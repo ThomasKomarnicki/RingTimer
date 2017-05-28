@@ -1,6 +1,7 @@
 package com.github.komarnicki.thomas.ringtimer.timerlist
 
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,10 +10,8 @@ import com.github.komarnicki.thomas.ringtimer.R
 import com.github.komarnicki.thomas.ringtimer.model.Timer
 import com.github.komarnicki.thomas.ringtimer.model.TimerProgressUpdate
 import com.github.komarnicki.thomas.ringtimer.model.TimerUpdateType
-import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.BehaviorSubject
-import io.reactivex.subjects.PublishSubject
 
 class TimersAdapter(var timers: List<Timer>, var timerClickListener: TimerClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -23,36 +22,46 @@ class TimersAdapter(var timers: List<Timer>, var timerClickListener: TimerClickL
     var runningTimerPos: Int = Int.MAX_VALUE
 
     var progressObservable: BehaviorSubject<TimerProgressUpdate>? = null
+    private var disposable: Disposable? = null;
 
     override fun onBindViewHolder(viewHolder: RecyclerView.ViewHolder, position: Int) {
         if(viewHolder is VH) {
-            val t = timers[if(position < runningTimerPos) position else position + 1]
+            val timerIndex = if(position <= runningTimerPos) position else position - 1
+            val t = timers[timerIndex]
             viewHolder.durationTime.text = displayDuration(t.duration)
             viewHolder.breakTime.text = displayDuration(t.breakTime)
             viewHolder.itemView.setOnClickListener {
                 if(progressObservable == null){
-                    runningTimerPos = position
-                    runningTimer = t
-                    timerClickListener.onTimerClicked(t, it)
+                    Log.d("TimersAdapter", "adding timer progress")
+                    runningTimerPos = timerIndex
+                    addTimerPlaybackRow(timerIndex, t, viewHolder.itemView)
                     notifyItemInserted(position + 1)
+
                 }else {
-                    if(runningTimer == progressObservable!!.value?.timer){
+                    if(runningTimer != null && runningTimerPos == timerIndex){
                         // do nothing?
+                        Log.d("TimersAdapter", "clicked on timer already running")
                     }else{
+                        Log.d("TimersAdapter", "adding new  progress")
                         removePlaybackRow(position)
-                        addTimerPlaybackRow(position, t, viewHolder.itemView)
+                        val oldTimerIndex = timerIndex
+                        runningTimerPos = timerIndex
+                        addTimerPlaybackRow(timerIndex, t, viewHolder.itemView)
+                        notifyItemMoved(oldTimerIndex+1, timerIndex+1)
+                        notifyDataSetChanged()
                     }
                 }
-
         }
         }else if(viewHolder is TimerPlaybackViewHolder){
             if(progressObservable != null) {
                 viewHolder.timerPlaybackView.setTimerProgressObservable(progressObservable)
-                progressObservable?.subscribe {
+                disposable?.dispose()
+                disposable = progressObservable?.subscribe {
                     if(it.updateType == TimerUpdateType.DONE){
                         removePlaybackRow(position)
                     }
                 }
+                viewHolder.itemView.setOnClickListener(null)
             }
         }
     }
@@ -60,14 +69,12 @@ class TimersAdapter(var timers: List<Timer>, var timerClickListener: TimerClickL
     private fun removePlaybackRow(position: Int){
         runningTimer = null
         runningTimerPos = Int.MAX_VALUE
-        notifyItemRemoved(position)
+//        notifyItemRemoved(position)
     }
 
     private fun addTimerPlaybackRow(position: Int, timer: Timer, view: View){
-        runningTimerPos = position
         runningTimer = timer
         timerClickListener.onTimerClicked(timer, view)
-        notifyItemInserted(position + 1)
     }
 
 
