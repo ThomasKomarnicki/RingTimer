@@ -1,7 +1,7 @@
 package com.github.komarnicki.thomas.ringtimer.model
 
 enum class TimerUpdateType {
-    PROGRESS, PLAY, PAUSE, DONE, LOOP
+    PROGRESS, PLAY, PAUSE, DONE, LOOP, ALMOST_DONE, BREAK
 }
 
 data class TimerProgressUpdate(val progress: Int, val timer: Timer, val updateType: TimerUpdateType = TimerUpdateType.PROGRESS){

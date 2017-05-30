@@ -8,7 +8,6 @@ import android.os.IBinder
 import android.app.PendingIntent
 import android.content.Context
 import android.support.v4.app.NotificationCompat
-import android.util.Log
 import android.widget.RemoteViews
 import com.github.komarnicki.thomas.ringtimer.R
 import com.github.komarnicki.thomas.ringtimer.model.Timer
@@ -29,6 +28,7 @@ class TimerService : Service() {
     private var contentView: RemoteViews? = null
     private var notificationManager: NotificationManager? = null
     private var notification : Notification? = null
+    private var soundPlayer: SoundPlayer? = null
 
     private var started = false
 
@@ -37,22 +37,17 @@ class TimerService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-//        Log.d("TimerService", "Started Service")
         if(intent == null){
             return super.onStartCommand(intent, flags, startId)
         }
         if(intent.hasExtra("timer")) {
-
             notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
             showForegroundNotification(intent)
-
-        }else if(intent.hasExtra("pause")){
-
-//            Log.d("TimerService", "paused_play")
+        }
+        else if(intent.hasExtra("pause")){
             binder.timerCountDown!!.toggle()
-
-        }else if(intent.hasExtra("stop")){
-
+        }
+        else if(intent.hasExtra("stop")){
             stopForeground(true)
             binder.timerCountDown?.stop()
             disposable?.dispose()
@@ -68,7 +63,11 @@ class TimerService : Service() {
         stopIntent.putExtra("stop", true)
         val stopPendingIntent = PendingIntent.getService(this, 0, stopIntent, 0)
 
-        val timer = intent!!.getParcelableExtra<Timer>("timer");
+        val timer = intent!!.getParcelableExtra<Timer>("timer")
+
+        if(timer.soundClip != null) {
+            soundPlayer = SoundPlayer(timer, this)
+        }
 
         contentView = RemoteViews(packageName, R.layout.notification_simple)
 
@@ -80,14 +79,11 @@ class TimerService : Service() {
 
         notification = builder.build()
 
-//        Log.d("TimerService", "Started foreground")
-
         if(started) {
             binder.timerCountDown?.timer = timer
         }else {
             binder.timerCountDown = TimerCountDown(timer)
             disposable?.dispose()
-//            binder.timerCountDown!!.timerObservable.subscribe(timerObserver)
 
             binder.timerCountDown!!.timerObservable.subscribe {
 
@@ -101,13 +97,14 @@ class TimerService : Service() {
                     contentView?.setImageViewResource(R.id.notification_play_pause, if(playing) pauseIcon else playIcon)
                     notificationManager?.notify(ONGOING_NOTIFICATION_ID, notification)
 
-
                 }else if(it.updateType == TimerUpdateType.PROGRESS){
-//                    Log.d("TimerService", "Got Progress Update ${it.progress}")
                     contentView!!.setTextViewText(R.id.notification_time, it.progress.toString())
                     notificationManager?.notify(ONGOING_NOTIFICATION_ID, notification)
+
                 }else if(it.updateType == TimerUpdateType.DONE){
                     stopSelf()
+                }else if(it.updateType == TimerUpdateType.ALMOST_DONE || it.updateType == TimerUpdateType.LOOP || it.updateType == TimerUpdateType.BREAK){
+                    soundPlayer?.playSoundClip()
                 }
             }
             started = true

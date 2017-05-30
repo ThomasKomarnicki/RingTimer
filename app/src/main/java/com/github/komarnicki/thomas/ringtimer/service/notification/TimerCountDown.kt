@@ -17,7 +17,21 @@ class TimerCountDown(var timer:Timer) {
     private val running1 = BehaviorSubject.create<Boolean>()
 
     private var playing = true
-//    private var loop = false // if next progress update should be loop
+
+    private val breakTimeMillis = timer.duration * 1000
+    private val loopTimeMillis = (timer.duration + timer.breakTime) * 1000
+    private val almostDoneMillis: Int
+
+    private var almostDone = false
+    private var breakStarted = false
+
+    init {
+        if(timer.almostDone > 0) {
+            almostDoneMillis = (timer.duration - timer.almostDone) * 1000
+        }else{
+            almostDoneMillis = Int.MAX_VALUE
+        }
+    }
 
     var timerObservable: BehaviorSubject<TimerProgressUpdate> = BehaviorSubject.create<TimerProgressUpdate>()
     private var help: Observable<TimerProgressUpdate> = running1.switchMap {
@@ -30,8 +44,18 @@ class TimerCountDown(var timer:Timer) {
             } else
                 Observable.never()
             }.doOnNext {
-                if(timerProgress > (timer.duration + timer.breakTime) * 1000){
+                if(!almostDone && timerProgress >= almostDoneMillis){
+                    almostDone = true
+                    timerObservable.onNext(TimerProgressUpdate(0, timer, TimerUpdateType.ALMOST_DONE))
+                }
+                if(!breakStarted && timerProgress >= breakTimeMillis){
+                    breakStarted = true
+                    timerObservable.onNext(TimerProgressUpdate(0, timer, TimerUpdateType.BREAK))
+                }
+                if(timerProgress > loopTimeMillis){
                     timerProgress = 0
+                    almostDone = false
+                    breakStarted = false
                     timerObservable.onNext(TimerProgressUpdate(0, timer, TimerUpdateType.LOOP))
 //                    loop = true
                 }

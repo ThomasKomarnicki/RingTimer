@@ -55,8 +55,6 @@ class TimerProgressView : View {
     }
 
     fun start(progressUpdate: TimerProgressUpdate){
-//        elapsedNano = 0L
-//        pauseNano = 0L
         nanoStart = System.nanoTime()
         timerNanoDuration = progressUpdate.timer.totalSecondsDuration().toLong() * NANOS_IN_SECOND
         state = State.RUNNING
