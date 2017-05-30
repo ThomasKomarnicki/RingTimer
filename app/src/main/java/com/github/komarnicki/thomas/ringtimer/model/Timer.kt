@@ -46,4 +46,8 @@ class Timer : Parcelable {
         val CREATOR = createParcel {Timer(it)}
     }
 
+    fun totalSecondsDuration(): Int{
+        return duration + breakTime
+    }
+
 }

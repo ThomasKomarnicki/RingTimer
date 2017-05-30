@@ -59,6 +59,7 @@ class TimersAdapter(var timers: List<Timer>, var timerClickListener: TimerClickL
                 disposable = progressObservable?.subscribe {
                     if(it.updateType == TimerUpdateType.DONE){
                         removePlaybackRow(position)
+                        notifyItemRemoved(position)
                     }
                 }
                 viewHolder.itemView.setOnClickListener(null)

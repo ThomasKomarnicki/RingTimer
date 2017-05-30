@@ -37,7 +37,7 @@ class TimerService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d("TimerService", "Started Service")
+//        Log.d("TimerService", "Started Service")
         if(intent == null){
             return super.onStartCommand(intent, flags, startId)
         }
@@ -48,7 +48,7 @@ class TimerService : Service() {
 
         }else if(intent.hasExtra("pause")){
 
-            Log.d("TimerService", "paused_play")
+//            Log.d("TimerService", "paused_play")
             binder.timerCountDown!!.toggle()
 
         }else if(intent.hasExtra("stop")){
@@ -80,7 +80,7 @@ class TimerService : Service() {
 
         notification = builder.build()
 
-        Log.d("TimerService", "Started foreground")
+//        Log.d("TimerService", "Started foreground")
 
         if(started) {
             binder.timerCountDown?.timer = timer
@@ -104,7 +104,7 @@ class TimerService : Service() {
 
 
                 }else if(it.updateType == TimerUpdateType.PROGRESS){
-                    Log.d("TimerService", "Got Progress Update ${it.progress}")
+//                    Log.d("TimerService", "Got Progress Update ${it.progress}")
                     contentView!!.setTextViewText(R.id.notification_time, it.progress.toString())
                     notificationManager?.notify(ONGOING_NOTIFICATION_ID, notification)
                 }

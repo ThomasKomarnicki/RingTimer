@@ -53,6 +53,8 @@ class TimerCountDown(var timer:Timer) {
                 running1.onNext(playing)
             }
         }
+
+        timerObservable.onNext(TimerProgressUpdate(0,timer,TimerUpdateType.PLAY))
     }
 
     fun restart() {

@@ -6,6 +6,11 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
+    <com.github.komarnicki.thomas.ringtimer.view.TimerProgressView
+        android:id="@+id/view_timer_playback_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
     <android.support.constraint.Guideline
         android:id="@+id/guideline4"
         android:layout_width="wrap_content"
