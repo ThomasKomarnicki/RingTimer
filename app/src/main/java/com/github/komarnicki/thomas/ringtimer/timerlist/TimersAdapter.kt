@@ -53,11 +53,13 @@ class TimersAdapter(var timers: List<Timer>, var timerClickListener: TimerClickL
                 }
         }
         }else if(viewHolder is TimerPlaybackViewHolder){
-            if(progressObservable != null) {
-                viewHolder.timerPlaybackView.setTimerProgressObservable(progressObservable)
+            if(progressObservable != null && progressObservable?.value != null) {
+                viewHolder.timerPlaybackView.setTimerProgressObservable(progressObservable!!)
                 disposable?.dispose()
                 disposable = progressObservable?.subscribe {
                     if(it.updateType == TimerUpdateType.DONE){
+                        Log.d("TimersAdapter", "DONE message received")
+                        progressObservable = null
                         removePlaybackRow(position)
                         notifyItemRemoved(position)
                     }

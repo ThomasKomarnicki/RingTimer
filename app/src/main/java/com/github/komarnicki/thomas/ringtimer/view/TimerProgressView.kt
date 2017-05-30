@@ -9,6 +9,8 @@ import com.github.komarnicki.thomas.ringtimer.model.TimerProgressUpdate
 
 class TimerProgressView : View {
 
+    private val NANOS_IN_SECOND = 1_000_000_000L
+
     private enum class State{
         RUNNING, PAUSED
     }
@@ -36,14 +38,14 @@ class TimerProgressView : View {
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         if(timerNanoDuration == 0L){
-            return
+            return // view essentially hasn't been initialized
         }
 
         if(state == State.RUNNING) {
             elapsedNano = (System.nanoTime() - nanoStart)
         }
 
-        drawArea.set(0, 0, (elapsedNano / timerNanoDuration).toInt(), height)
+        drawArea.set(0, 0, ((elapsedNano.toDouble() / timerNanoDuration.toDouble()) * width.toDouble()).toInt(), height)
         canvas.clipRect(drawArea, Region.Op.REPLACE)
         canvas.drawRect(drawArea, paint)
 
@@ -53,8 +55,10 @@ class TimerProgressView : View {
     }
 
     fun start(progressUpdate: TimerProgressUpdate){
+//        elapsedNano = 0L
+//        pauseNano = 0L
         nanoStart = System.nanoTime()
-        timerNanoDuration = progressUpdate.timer.totalSecondsDuration().toLong() * 1_000_000L
+        timerNanoDuration = progressUpdate.timer.totalSecondsDuration().toLong() * NANOS_IN_SECOND
         state = State.RUNNING
         starting = true
         invalidate()
@@ -68,6 +72,12 @@ class TimerProgressView : View {
 
     fun pause(){
         pauseNano = System.nanoTime()
+        state = State.PAUSED
+    }
+
+    fun reset(){
+        elapsedNano = 0L
+        pauseNano = 0L
         state = State.PAUSED
     }
 }

@@ -102,11 +102,12 @@ class TimerService : Service() {
                     notificationManager?.notify(ONGOING_NOTIFICATION_ID, notification)
 
 
-
                 }else if(it.updateType == TimerUpdateType.PROGRESS){
 //                    Log.d("TimerService", "Got Progress Update ${it.progress}")
                     contentView!!.setTextViewText(R.id.notification_time, it.progress.toString())
                     notificationManager?.notify(ONGOING_NOTIFICATION_ID, notification)
+                }else if(it.updateType == TimerUpdateType.DONE){
+                    stopSelf()
                 }
             }
             started = true

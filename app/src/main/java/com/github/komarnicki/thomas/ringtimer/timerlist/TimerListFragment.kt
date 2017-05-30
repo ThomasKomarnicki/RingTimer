@@ -21,9 +21,8 @@ import com.github.komarnicki.thomas.ringtimer.R
 import com.github.komarnicki.thomas.ringtimer.service.TimerService
 import com.github.komarnicki.thomas.ringtimer.addtimer.AddTimerFragment
 import com.github.komarnicki.thomas.ringtimer.model.Timer
+import com.github.komarnicki.thomas.ringtimer.model.TimerUpdateType
 import com.github.komarnicki.thomas.ringtimer.service.TimerServiceBinder
-import io.reactivex.Observable
-import io.reactivex.disposables.Disposable
 
 class TimerListFragment : LifecycleFragment(), TimersAdapter.TimerClickListener{
 
@@ -72,7 +71,7 @@ class TimerListFragment : LifecycleFragment(), TimersAdapter.TimerClickListener{
 
     override fun onStart() {
         super.onStart()
-        if(viewModel?.activeTimer != null){
+        if(viewModel?.activeTimer != null) {
             bindService(viewModel?.activeTimer)
         }
     }
@@ -91,8 +90,13 @@ class TimerListFragment : LifecycleFragment(), TimersAdapter.TimerClickListener{
         intent.putExtra("timer", timer)
         activity.startService(intent)
 
-        if(binder == null || binder?.isBinderAlive!!) {
+//        if(binder == null || binder?.isBinderAlive!!) {
             activity.bindService(intent, serviceConnection, Service.BIND_AUTO_CREATE)
+//        }
+
+        if(binder != null){
+            adapter?.progressObservable = binder!!.timerCountDown?.timerObservable
+            adapter?.notifyDataSetChanged()
         }
 
     }
@@ -104,7 +108,9 @@ class TimerListFragment : LifecycleFragment(), TimersAdapter.TimerClickListener{
     }
 
     private fun unbindService() {
-        activity.unbindService(serviceConnection)
+        if(isResumed) {
+            activity.unbindService(serviceConnection)
+        }
     }
 
     val serviceConnection = object : ServiceConnection {
@@ -113,11 +119,19 @@ class TimerListFragment : LifecycleFragment(), TimersAdapter.TimerClickListener{
 //            disposable?.dispose()
 
             adapter?.progressObservable = binder!!.timerCountDown?.timerObservable
-            adapter?.notifyItemChanged(adapter!!.runningTimerPos + 1)
-//            playPauseObservable?.subscribe(binder!!.timerCountDown?.running1)
+//            adapter?.notifyItemChanged(adapter!!.runningTimerPos + 1)
+            adapter?.notifyDataSetChanged()
+
+            binder!!.timerCountDown?.timerObservable?.subscribe{
+                if(it.updateType == TimerUpdateType.DONE){
+                    unbindService()
+                }
+            }
+
         }
         override fun onServiceDisconnected(name: ComponentName?) {
 //            disposable?.dispose()
+            binder = null
         }
 
     }

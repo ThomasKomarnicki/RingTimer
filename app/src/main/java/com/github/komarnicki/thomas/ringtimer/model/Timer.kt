@@ -3,6 +3,7 @@ package com.github.komarnicki.thomas.ringtimer.model
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.Ignore
 import android.arch.persistence.room.PrimaryKey
+import android.net.Uri
 import android.os.Parcel
 import android.os.Parcelable
 import com.github.komarnicki.thomas.ringtimer.createParcel
@@ -17,6 +18,10 @@ class Timer : Parcelable {
 
     var breakTime: Int = 0
 
+    var almostDone: Int = -1
+
+    var soundClip: Uri? = null
+
     @Ignore
     constructor(duration: Int, breakTime: Int) {
         this.duration = duration
@@ -29,6 +34,8 @@ class Timer : Parcelable {
         id = `in`.readInt()
         duration = `in`.readInt()
         breakTime = `in`.readInt()
+        almostDone = `in`.readInt()
+        soundClip = Uri.parse(`in`.readString())
     }
 
     override fun describeContents(): Int {
@@ -39,6 +46,9 @@ class Timer : Parcelable {
         dest.writeInt(id)
         dest.writeInt(duration)
         dest.writeInt(breakTime)
+        dest.writeInt(almostDone)
+        dest.writeString(soundClip.toString())
+
     }
 
     companion object {

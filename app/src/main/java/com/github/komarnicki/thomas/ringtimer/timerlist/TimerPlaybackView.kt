@@ -18,9 +18,9 @@ class TimerPlaybackView : FrameLayout {
 
     private val tag = "TimerPlaybackView"
 
-    private var playPauseButton: ImageButton? = null
-    private var timeText: TextView? = null
-    private var progressView: TimerProgressView? = null
+    private var playPauseButton: ImageButton
+    private var timeText: TextView
+    private var progressView: TimerProgressView
     private var playing = true
     private val playIcon = R.drawable.ic_play_arrow_black_24dp
     private val pauseIcon = R.drawable.ic_pause_black_24dp
@@ -43,44 +43,51 @@ class TimerPlaybackView : FrameLayout {
         val view = View.inflate(context, R.layout.view_timer_playback, this)
         playPauseButton = view.findViewById(R.id.view_timer_playback_play_pause) as ImageButton
         timeText = view.findViewById(R.id.view_timer_playback_time) as TextView
-        playPauseButton?.setImageResource(pauseIcon)
+        playPauseButton.setImageResource(pauseIcon)
         progressView = view.findViewById(R.id.view_timer_playback_view) as TimerProgressView
     }
 
-    fun setTimerProgressObservable(timerProgressObservable: BehaviorSubject<TimerProgressUpdate>?){
+    fun setTimerProgressObservable(timerProgressObservable: BehaviorSubject<TimerProgressUpdate>){
         disposable?.dispose()
-        disposable = timerProgressObservable?.subscribe{
+        disposable = timerProgressObservable.subscribe{
             if(it.updateType == TimerUpdateType.PLAY){
-                progressView?.resume(it)
+                progressView.resume(it)
                 playing = true
                 configPlayPauseButton()
-                timerProgressObservable?.onNext(timerProgressObservable.value.copy(updateType = if(playing) TimerUpdateType.PLAY else TimerUpdateType.PAUSE))
             }else if(it.updateType == TimerUpdateType.PAUSE){
-                progressView?.pause()
+                progressView.pause()
                 playing = false
                 configPlayPauseButton()
             }
             else if(it.updateType == TimerUpdateType.PROGRESS){
-                timeText?.text = it.elapsedTime
+                timeText.text = it.elapsedTime
 //                progressView?.progress = it.percent
 //                progressView?.invalidate()
             }else if(it.updateType == TimerUpdateType.DONE){
-
+                playing = false
+                progressView.reset()
+            }
+            else if(it.updateType == TimerUpdateType.LOOP){
+                progressView?.start(timerProgressObservable.value!!)
             }
         }
 
-        progressView?.start(timerProgressObservable?.value!!)
+        val update = timerProgressObservable.value!!
+        progressView.start(update)
 
-        playPauseButton?.setOnClickListener {
+        playPauseButton.setOnClickListener {
             playing = !playing
             configPlayPauseButton()
-            timerProgressObservable?.onNext(timerProgressObservable.value.copy(updateType = if(playing) TimerUpdateType.PLAY else TimerUpdateType.PAUSE))
+            val update = timerProgressObservable.value.copy(updateType = if(playing) TimerUpdateType.PLAY else TimerUpdateType.PAUSE)
+            timerProgressObservable.onNext(update)
         }
 
+        playing = true
+        configPlayPauseButton()
     }
 
     private fun configPlayPauseButton(){
-        playPauseButton?.setImageResource(if(playing) pauseIcon else playIcon)
+        playPauseButton.setImageResource(if(playing) pauseIcon else playIcon)
     }
 
 }

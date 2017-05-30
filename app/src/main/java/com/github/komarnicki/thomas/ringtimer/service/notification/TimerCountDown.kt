@@ -17,23 +17,31 @@ class TimerCountDown(var timer:Timer) {
     private val running1 = BehaviorSubject.create<Boolean>()
 
     private var playing = true
+//    private var loop = false // if next progress update should be loop
 
     var timerObservable: BehaviorSubject<TimerProgressUpdate> = BehaviorSubject.create<TimerProgressUpdate>()
     private var help: Observable<TimerProgressUpdate> = running1.switchMap {
-        if (it) Observable.interval(0L, 1L, TimeUnit.SECONDS)
+        if (it) Observable.interval(0L, 50L, TimeUnit.MILLISECONDS)
             .doOnNext {
                 if(lastProgress != it){
-                    timerProgress++
+                    timerProgress += 50
                 }
                 lastProgress = it
             } else
                 Observable.never()
             }.doOnNext {
-                if(timerProgress >= timer.duration + timer.breakTime){
-
+                if(timerProgress > (timer.duration + timer.breakTime) * 1000){
+                    timerProgress = 0
+                    timerObservable.onNext(TimerProgressUpdate(0, timer, TimerUpdateType.LOOP))
+//                    loop = true
                 }
             }.map {
-                TimerProgressUpdate(timerProgress.toInt(), timer)
+                var updateType = TimerUpdateType.PROGRESS
+//                if(loop){
+//                    updateType = TimerUpdateType.LOOP
+//                    loop = false
+//                }
+                TimerProgressUpdate(timerProgress.toInt()/1000, timer, updateType)
             }
             .takeUntil(running1.materialize().filter { it.isOnComplete })
             .doOnComplete {
