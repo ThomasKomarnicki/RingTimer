@@ -12,12 +12,13 @@ import com.github.komarnicki.thomas.ringtimer.R
 import com.github.komarnicki.thomas.ringtimer.model.Timer
 import com.github.komarnicki.thomas.ringtimer.timerlist.TimersViewModel
 import android.view.inputmethod.InputMethodManager
+import android.widget.CheckBox
 
 
 class AddTimerFragment : LifecycleFragment(){
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater?.inflate(R.layout.fragment_add_timer, container, false);
+        return inflater?.inflate(R.layout.fragment_add_timer, container, false)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -42,6 +43,19 @@ class AddTimerFragment : LifecycleFragment(){
 
         val imm = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(breakTimeEt.windowToken, 0)
+
+        val almostDoneTime = view?.findViewById(R.id.add_timer_almost_done) as TimeInputView
+        almostDoneTime.hideLabel()
+
+        val checkbox = view?.findViewById(R.id.add_timer_almost_done_check) as CheckBox
+        checkbox.setOnCheckedChangeListener { buttonView, isChecked ->
+            if(isChecked){
+                almostDoneTime.requestFocus()
+            }else{
+                almostDoneTime.clearFocus()
+                almostDoneTime.isEnabled = false
+            }
+        }
 
         activity.onBackPressed()
     }

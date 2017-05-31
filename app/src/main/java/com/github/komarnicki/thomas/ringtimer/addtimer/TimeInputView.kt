@@ -19,6 +19,8 @@ class TimeInputView : LinearLayout {
 
     private var timePadInputView: TimePadInputView? = null
 
+    private var label: TextView? = null
+
     fun seconds(): Int {
         if (numbers.isEmpty())
             return 0
@@ -48,15 +50,14 @@ class TimeInputView : LinearLayout {
         init(null)
     }
 
-
     private fun init(attrs: AttributeSet?, defStyle: Int = 0){
         orientation = VERTICAL
         val view = View.inflate(context, R.layout.time_input, null) as ConstraintLayout
         addView(view)
 
         val a = context.obtainStyledAttributes(attrs, R.styleable.TimeInputView, defStyle, 0)
-        val label = view.findViewById(R.id.time_input_label) as TextView
-        label.text = a.getString(R.styleable.TimeInputView_label_text)
+        label = view.findViewById(R.id.time_input_label) as TextView
+        label?.text = a.getString(R.styleable.TimeInputView_label_text)
         a.recycle()
 
         minutesText = view.findViewById(R.id.time_input_min_text) as TextView
@@ -108,6 +109,14 @@ class TimeInputView : LinearLayout {
     private fun showNumberPad(){
         timePadInputView?.visibility = View.VISIBLE
 
+    }
+
+    fun hideLabel(){
+        label?.visibility = View.GONE
+    }
+
+    override fun setEnabled(enabled: Boolean) {
+        super.setEnabled(enabled)
     }
 
 }
