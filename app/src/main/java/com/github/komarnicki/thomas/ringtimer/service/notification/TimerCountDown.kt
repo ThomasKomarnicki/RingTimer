@@ -57,14 +57,10 @@ class TimerCountDown(var timer:Timer) {
                     almostDone = false
                     breakStarted = false
                     timerObservable.onNext(TimerProgressUpdate(0, timer, TimerUpdateType.LOOP))
-//                    loop = true
                 }
             }.map {
                 var updateType = TimerUpdateType.PROGRESS
-//                if(loop){
-//                    updateType = TimerUpdateType.LOOP
-//                    loop = false
-//                }
+
                 TimerProgressUpdate(timerProgress.toInt()/1000, timer, updateType)
             }
             .takeUntil(running1.materialize().filter { it.isOnComplete })
