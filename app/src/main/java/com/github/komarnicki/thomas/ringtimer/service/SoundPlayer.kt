@@ -6,7 +6,7 @@ import android.media.MediaPlayer
 import com.github.komarnicki.thomas.ringtimer.model.Timer
 
 class SoundPlayer (timer: Timer, context: Context) {
-    private val mediaPlayer : MediaPlayer = MediaPlayer.create(context, timer.soundClip)
+    private val mediaPlayer : MediaPlayer = MediaPlayer.create(context, timer.soundClipUri)
 
     init {
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_NOTIFICATION)

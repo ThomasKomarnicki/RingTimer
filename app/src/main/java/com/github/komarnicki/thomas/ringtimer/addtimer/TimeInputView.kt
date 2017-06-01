@@ -5,6 +5,7 @@ import android.support.constraint.ConstraintLayout
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
+import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.github.komarnicki.thomas.ringtimer.R
@@ -63,20 +64,29 @@ class TimeInputView : LinearLayout {
         minutesText = view.findViewById(R.id.time_input_min_text) as TextView
         secondsText = view.findViewById(R.id.time_input_sec_text) as TextView
 
-        view.setOnFocusChangeListener { _, hasFocus ->
-
-            if(hasFocus) showNumberPad() else hideNumberPad()
-        }
-        view.isFocusable = true
-        view.isFocusableInTouchMode = true
-
-        view.findViewById(R.id.time_input_delete).setOnClickListener {
+        val deleteButton = findViewById(R.id.time_input_delete) as ImageButton
+        deleteButton.setOnClickListener {
             if(numbers.size > 0){
                 numbers.removeAt(0)
             }
 
             displayTime()
         }
+
+        view.setOnFocusChangeListener { _, hasFocus ->
+
+            if(hasFocus) {
+                deleteButton.visibility = View.VISIBLE
+                showNumberPad()
+            }else {
+                deleteButton.visibility = View.INVISIBLE
+                hideNumberPad()
+            }
+        }
+        view.isFocusable = true
+        view.isFocusableInTouchMode = true
+
+
 
         timePadInputView = TimePadInputView(context)
         addView(timePadInputView)

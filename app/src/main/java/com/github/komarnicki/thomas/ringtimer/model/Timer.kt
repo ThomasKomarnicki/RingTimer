@@ -18,9 +18,14 @@ class Timer : Parcelable {
 
     var breakTime: Int = 0
 
-    var almostDone: Int = -1
+    var warming: Int = -1
 
-    var soundClip: Uri? = null
+    @Ignore
+    private var soundClip: String? = null
+
+    var soundClipUri: Uri
+    get() {return Uri.parse(soundClip)}
+    set(value) {soundClip = value.toString()}
 
     @Ignore
     constructor(duration: Int, breakTime: Int) {
@@ -34,8 +39,8 @@ class Timer : Parcelable {
         id = `in`.readInt()
         duration = `in`.readInt()
         breakTime = `in`.readInt()
-        almostDone = `in`.readInt()
-        soundClip = Uri.parse(`in`.readString())
+        warming = `in`.readInt()
+        soundClip = `in`.readString()
     }
 
     override fun describeContents(): Int {
@@ -46,10 +51,11 @@ class Timer : Parcelable {
         dest.writeInt(id)
         dest.writeInt(duration)
         dest.writeInt(breakTime)
-        dest.writeInt(almostDone)
-        dest.writeString(soundClip.toString())
-
+        dest.writeInt(warming)
+        dest.writeString(soundClip)
     }
+
+
 
     companion object {
         @JvmField @Suppress("unused")
@@ -61,3 +67,10 @@ class Timer : Parcelable {
     }
 
 }
+
+//@TypeConverter fun uriToString(uri: Uri): String{
+//    return uri.toString()
+//}
+//@TypeConverter fun stringToUri(s: String): Uri{
+//    return Uri.parse(s)
+//}

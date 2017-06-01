@@ -65,7 +65,7 @@ class TimerService : Service() {
 
         val timer = intent!!.getParcelableExtra<Timer>("timer")
 
-        if(timer.soundClip != null) {
+        if(timer.soundClipUri != null) {
             soundPlayer = SoundPlayer(timer, this)
         }
 
