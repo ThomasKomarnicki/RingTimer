@@ -6,6 +6,7 @@ import android.arch.persistence.room.PrimaryKey
 import android.net.Uri
 import android.os.Parcel
 import android.os.Parcelable
+import com.github.komarnicki.thomas.ringtimer.R
 import com.github.komarnicki.thomas.ringtimer.createParcel
 
 @Entity
@@ -18,10 +19,10 @@ class Timer : Parcelable {
 
     var breakTime: Int = 0
 
-    var warming: Int = -1
+    var warning: Int = -1
 
     @Ignore
-    private var soundClip: String? = null
+    private var soundClip: String = "android.resource://com.github.komarnicki.thomas.ringtimer/raw/bell"
 
     var soundClipUri: Uri
     get() {return Uri.parse(soundClip)}
@@ -39,7 +40,7 @@ class Timer : Parcelable {
         id = `in`.readInt()
         duration = `in`.readInt()
         breakTime = `in`.readInt()
-        warming = `in`.readInt()
+        warning = `in`.readInt()
         soundClip = `in`.readString()
     }
 
@@ -51,7 +52,7 @@ class Timer : Parcelable {
         dest.writeInt(id)
         dest.writeInt(duration)
         dest.writeInt(breakTime)
-        dest.writeInt(warming)
+        dest.writeInt(warning)
         dest.writeString(soundClip)
     }
 

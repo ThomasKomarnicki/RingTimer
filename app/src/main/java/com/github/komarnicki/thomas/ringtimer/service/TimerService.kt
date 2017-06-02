@@ -65,9 +65,7 @@ class TimerService : Service() {
 
         val timer = intent!!.getParcelableExtra<Timer>("timer")
 
-        if(timer.soundClipUri != null) {
-            soundPlayer = SoundPlayer(timer, this)
-        }
+        soundPlayer = SoundPlayer(timer, this)
 
         contentView = RemoteViews(packageName, R.layout.notification_simple)
 

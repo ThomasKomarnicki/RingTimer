@@ -17,6 +17,12 @@ import android.widget.CheckBox
 
 class AddTimerFragment : LifecycleFragment(){
 
+//    val soundsList = listOf(
+//            Pair("Beep","1"),
+//            Pair("Ding","1"),
+//            Pair("Ding Ding","1")
+//    )
+
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater?.inflate(R.layout.fragment_add_timer, container, false)
     }
@@ -31,18 +37,13 @@ class AddTimerFragment : LifecycleFragment(){
 
         (view?.findViewById(R.id.add_timer_duration) as TimeInputView).requestFocus()
 
-        val almostDoneTime = view?.findViewById(R.id.add_timer_warning) as TimeInputView
-        almostDoneTime.hideLabel()
 
-        val checkbox = view?.findViewById(R.id.add_timer_warning_check) as CheckBox
-        checkbox.setOnCheckedChangeListener { buttonView, isChecked ->
-            if(isChecked){
-                almostDoneTime.requestFocus()
-            }else{
-                almostDoneTime.clearFocus()
-                almostDoneTime.isEnabled = false
-            }
-        }
+//        val soundsSpinner = view?.findViewById(R.id.add_timer_sounds_spinner) as Spinner
+//
+//        val previewSoundButton = view?.findViewById(R.id.add_timer_preview_sound) as ImageButton
+//        previewSoundButton.setOnClickListener {
+//
+//        }
     }
 
     fun addTimer(){
@@ -57,6 +58,10 @@ class AddTimerFragment : LifecycleFragment(){
         val imm = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(breakTimeEt.windowToken, 0)
 
+        val checkbox = view?.findViewById(R.id.add_timer_warning_check) as CheckBox
+        if(checkbox.isChecked) {
+            timer.warning = 30
+        }
 
         activity.onBackPressed()
     }

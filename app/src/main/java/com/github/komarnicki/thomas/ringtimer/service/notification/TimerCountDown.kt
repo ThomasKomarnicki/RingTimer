@@ -26,8 +26,8 @@ class TimerCountDown(var timer:Timer) {
     private var breakStarted = false
 
     init {
-        if(timer.warming > 0) {
-            almostDoneMillis = (timer.duration - timer.warming) * 1000
+        if(timer.warning > 0) {
+            almostDoneMillis = (timer.duration - timer.warning) * 1000
         }else{
             almostDoneMillis = Int.MAX_VALUE
         }
