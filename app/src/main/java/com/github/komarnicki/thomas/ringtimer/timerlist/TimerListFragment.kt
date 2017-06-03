@@ -69,19 +69,25 @@ class TimerListFragment : LifecycleFragment(), TimersAdapter.TimerClickListener{
         }
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onResume() {
+        super.onResume()
         if(viewModel?.activeTimer != null) {
             bindService(viewModel?.activeTimer)
         }
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onPause() {
+        super.onPause()
         if(viewModel?.activeTimer != null){
             unbindService()
         }
     }
+
+//    override fun onDestroy() {
+//        super.onDestroy()
+//        activity.unbindService(serviceConnection)
+//
+//    }
 
     override fun onTimerClicked(timer: Timer, view: View) {
         viewModel?.activeTimer = timer
@@ -108,9 +114,9 @@ class TimerListFragment : LifecycleFragment(), TimersAdapter.TimerClickListener{
     }
 
     private fun unbindService() {
-        if(isResumed) {
+//        if(isResumed) {
             activity.unbindService(serviceConnection)
-        }
+//        }
     }
 
     val serviceConnection = object : ServiceConnection {
@@ -122,7 +128,10 @@ class TimerListFragment : LifecycleFragment(), TimersAdapter.TimerClickListener{
 
             binder!!.timerCountDown?.timerObservable?.subscribe{
                 if(it.updateType == TimerUpdateType.DONE){
-                    unbindService()
+                    viewModel?.activeTimer = null
+                    if(isResumed) {
+                        unbindService()
+                    }
                 }
             }
 

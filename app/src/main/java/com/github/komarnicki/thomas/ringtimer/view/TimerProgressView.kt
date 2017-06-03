@@ -5,6 +5,7 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
+import com.github.komarnicki.thomas.ringtimer.R
 import com.github.komarnicki.thomas.ringtimer.model.TimerProgressUpdate
 
 class TimerProgressView : View {
@@ -32,7 +33,7 @@ class TimerProgressView : View {
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {}
 
     init {
-        paint.color = Color.RED
+        paint.color = resources.getColor(R.color.colorPrimary)
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -60,6 +61,7 @@ class TimerProgressView : View {
         state = State.RUNNING
         starting = true
         invalidate()
+        translationY = 50f
     }
 
     fun resume(progressUpdate: TimerProgressUpdate){
