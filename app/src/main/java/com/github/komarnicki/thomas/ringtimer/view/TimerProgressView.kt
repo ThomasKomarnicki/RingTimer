@@ -22,9 +22,14 @@ class TimerProgressView : View {
     private var elapsedNano = 0L
     private var starting = false
     private var pauseNano = 0L
+    private val animationHeight: Int
+    private val corners: Float
+
 
     private var paint: Paint = Paint()
+    private var borderPaint: Paint = Paint()
     private var drawArea = Rect()
+    private var borderArea = Rect()
 
     constructor(context: Context) : super(context) {}
 
@@ -34,6 +39,11 @@ class TimerProgressView : View {
 
     init {
         paint.color = resources.getColor(R.color.colorPrimary)
+        borderPaint.color = resources.getColor(R.color.colorPrimary)
+        borderPaint.style = Paint.Style.STROKE
+        borderPaint.strokeWidth = resources.displayMetrics.density * 5
+        animationHeight = (resources.displayMetrics.density * 20).toInt()
+        corners = (resources.displayMetrics.density * 5f)
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -46,8 +56,22 @@ class TimerProgressView : View {
             elapsedNano = (System.nanoTime() - nanoStart)
         }
 
-        drawArea.set(0, 0, ((elapsedNano.toDouble() / timerNanoDuration.toDouble()) * width.toDouble()).toInt(), height)
-        canvas.clipRect(drawArea, Region.Op.REPLACE)
+
+        var startAnimPercent = 1f
+
+        if(starting){
+            if(System.nanoTime() > nanoStart + NANOS_IN_SECOND){
+                starting = false
+            }else{
+                startAnimPercent = 1 - (((nanoStart + NANOS_IN_SECOND) - System.nanoTime()).toDouble()/NANOS_IN_SECOND.toDouble()).toFloat()
+            }
+        }
+
+        borderArea.set(0,0, (startAnimPercent * width).toInt(), animationHeight)
+        canvas.clipRect(borderArea, Region.Op.REPLACE)
+        canvas.drawRect(borderArea, borderPaint)
+
+        drawArea.set(0, 0, ((elapsedNano.toDouble() / timerNanoDuration.toDouble()) * width.toDouble()).toInt(), animationHeight)
         canvas.drawRect(drawArea, paint)
 
         if( state == State.RUNNING){
@@ -61,7 +85,7 @@ class TimerProgressView : View {
         state = State.RUNNING
         starting = true
         invalidate()
-        translationY = 50f
+        translationY = -(animationHeight / 2).toFloat()
     }
 
     fun resume(progressUpdate: TimerProgressUpdate){
