@@ -8,8 +8,11 @@
 
     <com.github.komarnicki.thomas.ringtimer.view.TimerProgressView
         android:id="@+id/view_timer_playback_view"
+        style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="0dp" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline4"
@@ -51,4 +54,11 @@
         app:layout_constraintStart_toStartOf="@+id/guideline4"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_play_arrow_black_24dp" />
+
+    <!--<ProgressBar-->
+        <!--android:id="@+id/progressBar2"-->
+        <!--style="?android:attr/progressBarStyleHorizontal"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content" />-->
+
 </android.support.constraint.ConstraintLayout>

@@ -8,10 +8,12 @@ import android.os.IBinder
 import android.app.PendingIntent
 import android.content.Context
 import android.support.v4.app.NotificationCompat
+import android.util.Log
 import android.widget.RemoteViews
 import com.github.komarnicki.thomas.ringtimer.R
 import com.github.komarnicki.thomas.ringtimer.model.Timer
 import com.github.komarnicki.thomas.ringtimer.model.TimerUpdateType
+import com.github.komarnicki.thomas.ringtimer.service.notification.TimerControlView
 import com.github.komarnicki.thomas.ringtimer.service.notification.TimerCountDown
 import com.github.komarnicki.thomas.ringtimer.timerlist.TimerListActivity
 import io.reactivex.disposables.Disposable
@@ -20,12 +22,10 @@ import io.reactivex.disposables.Disposable
 class TimerService : Service() {
     val ONGOING_NOTIFICATION_ID: Int = 89
 
-    private val playIcon = R.drawable.ic_play_arrow_black_24dp
-    private val pauseIcon = R.drawable.ic_pause_black_24dp
-
     private var binder: TimerServiceBinder = TimerServiceBinder()
     private var disposable: Disposable? = null;
-    private var contentView: RemoteViews? = null
+    private var timerControlView: TimerControlView? = null
+//    private var contentView: RemoteViews? = null
     private var notificationManager: NotificationManager? = null
     private var notification : Notification? = null
     private var soundPlayer: SoundPlayer? = null
@@ -67,15 +67,18 @@ class TimerService : Service() {
 
         soundPlayer = SoundPlayer(timer, this)
 
-        contentView = RemoteViews(packageName, R.layout.notification_simple)
+        val remoteViews = RemoteViews(packageName, R.layout.notification_simple)
 
         var builder = NotificationCompat.Builder(this)
         builder.setSmallIcon(R.mipmap.ic_launcher)
-        builder.setContent(contentView)
+        builder.setContent(remoteViews)
         builder.setContentIntent(pendingIntent)
         builder.setDeleteIntent(stopPendingIntent)
 
         notification = builder.build()
+        timerControlView = TimerControlView(remoteViews, {
+            notificationManager?.notify(ONGOING_NOTIFICATION_ID, notification)
+        })
 
         if(started) {
             binder.timerCountDown?.timer = timer
@@ -87,19 +90,21 @@ class TimerService : Service() {
 
                 if(it.updateType == TimerUpdateType.PLAY || it.updateType == TimerUpdateType.PAUSE){
                     val playing = it.updateType == TimerUpdateType.PLAY
+                    Log.d("TimerService", "playing = $playing")
                     if (!playing) {
                         stopForeground(false)
                     } else {
                         startForeground(ONGOING_NOTIFICATION_ID, notification)
                     }
-                    contentView?.setImageViewResource(R.id.notification_play_pause, if(playing) pauseIcon else playIcon)
+                    timerControlView?.setPlaying(playing)
                     notificationManager?.notify(ONGOING_NOTIFICATION_ID, notification)
 
                 }else if(it.updateType == TimerUpdateType.PROGRESS){
-                    contentView!!.setTextViewText(R.id.notification_time, it.progress.toString())
+                    timerControlView?.setProgress(it)
                     notificationManager?.notify(ONGOING_NOTIFICATION_ID, notification)
 
                 }else if(it.updateType == TimerUpdateType.DONE){
+                    timerControlView?.destroyNotification()
                     stopSelf()
                 }else if(it.updateType == TimerUpdateType.ALMOST_DONE || it.updateType == TimerUpdateType.LOOP || it.updateType == TimerUpdateType.BREAK){
                     soundPlayer?.playSoundClip()
@@ -109,14 +114,8 @@ class TimerService : Service() {
         }
         binder.timerCountDown!!.restart()
 
-        configPlayPause(contentView)
+        timerControlView?.configPlayPause(this, timer)
     }
 
-    private fun configPlayPause(remoteViews: RemoteViews?){
-        val intent = Intent(this, TimerService::class.java)
-        intent.putExtra("pause", true)
-        val pausePendingIntent = PendingIntent.getService(this, 4, intent, 0)
-        remoteViews?.setOnClickPendingIntent(R.id.notification_play_pause, pausePendingIntent)
-        remoteViews?.setImageViewResource(R.id.notification_play_pause, pauseIcon)
-    }
+
 }
