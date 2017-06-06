@@ -64,14 +64,7 @@ class Timer : Parcelable {
     }
 
     fun totalSecondsDuration(): Int{
-        return duration + breakTime
+        return duration + breakTime + if(warning > 0) warning else 0
     }
 
 }
-
-//@TypeConverter fun uriToString(uri: Uri): String{
-//    return uri.toString()
-//}
-//@TypeConverter fun stringToUri(s: String): Uri{
-//    return Uri.parse(s)
-//}

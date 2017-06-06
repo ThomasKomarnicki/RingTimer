@@ -1,7 +1,6 @@
 package com.github.komarnicki.thomas.ringtimer.service.notification
 
 
-import android.app.Notification
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -10,8 +9,6 @@ import com.github.komarnicki.thomas.ringtimer.R
 import com.github.komarnicki.thomas.ringtimer.model.Timer
 import com.github.komarnicki.thomas.ringtimer.model.TimerProgressUpdate
 import com.github.komarnicki.thomas.ringtimer.service.TimerService
-import io.reactivex.Observable
-import java.util.concurrent.TimeUnit
 
 
 class TimerControlView(val remoteViews: RemoteViews, val onUiUpdate:() -> Unit) {

@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
 import com.github.komarnicki.thomas.ringtimer.R
+import com.github.komarnicki.thomas.ringtimer.model.Timer
 import com.github.komarnicki.thomas.ringtimer.model.TimerProgressUpdate
 
 class TimerProgressView : ProgressBar {
@@ -25,13 +26,13 @@ class TimerProgressView : ProgressBar {
     private var pauseNano = 0L
     private val animationHeight: Int
 
-
-    private var paint: Paint = Paint()
-    private var borderPaint: Paint = Paint()
-    private var drawArea = Rect()
     private var borderArea = Rect()
-
     private var lastDraw = 0L
+
+    private var timer: Timer? = null
+    private val breakPaint: Paint
+    private var breakPos: Float = 0f
+    private var warningPos: Float = -1F
 
     constructor(context: Context) : super(context) {}
 
@@ -40,17 +41,14 @@ class TimerProgressView : ProgressBar {
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {}
 
     init {
-        paint.color = resources.getColor(R.color.colorPrimary)
-        borderPaint.color = resources.getColor(R.color.colorPrimary)
-        borderPaint.style = Paint.Style.STROKE
-        borderPaint.strokeJoin = Paint.Join.ROUND
-        borderPaint.strokeWidth = resources.displayMetrics.density * 5
         animationHeight = (resources.displayMetrics.density * 5).toInt()
         max = 100
+        breakPaint = Paint()
+        breakPaint.strokeWidth = resources.displayMetrics.density * 5
+        breakPaint.color = resources.getColor(R.color.colorAccent)
     }
 
     override fun onDraw(canvas: Canvas) {
-
 
         if(timerNanoDuration == 0L){
             return // view essentially hasn't been initialized
@@ -73,22 +71,23 @@ class TimerProgressView : ProgressBar {
 
         borderArea.set(0,0, (startAnimPercent * width).toInt(), height)
         canvas.clipRect(borderArea, Region.Op.REPLACE)
-//        canvas.drawRect(borderArea, borderPaint)
-
-//        drawArea.set(0, 0, ((elapsedNano.toDouble() / timerNanoDuration.toDouble()) * width.toDouble()).toInt(), animationHeight)
-//        canvas.drawRect(drawArea, paint)
 
         progress = ((elapsedNano.toDouble() / timerNanoDuration.toDouble()) * width).toInt()
 
         super.onDraw(canvas)
 
+        if(timer != null){
+            canvas.drawLine(breakPos * width, 0f, breakPos * width, height.toFloat(), breakPaint)
+
+            if(timer!!.warning > 0){
+                canvas.drawLine(warningPos * width, 0f, warningPos * width, height.toFloat(), breakPaint)
+            }
+        }
+
         if( state == State.RUNNING){
             invalidate()
         }
 
-//        Log.d("TimerProgressView","lastDraw = ${System.currentTimeMillis() - lastDraw}")
-//
-//        lastDraw = System.currentTimeMillis()
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -103,6 +102,11 @@ class TimerProgressView : ProgressBar {
         starting = true
         invalidate()
         translationY = -(animationHeight).toFloat()
+        timer = progressUpdate.timer
+        breakPos = 1f - timer!!.breakTime.toFloat()/timer!!.totalSecondsDuration().toFloat()
+        if(timer!!.warning > 0){
+            warningPos = 1f - (timer!!.breakTime + timer!!.warning.toFloat())/timer!!.totalSecondsDuration().toFloat()
+        }
     }
 
     fun resume(progressUpdate: TimerProgressUpdate){

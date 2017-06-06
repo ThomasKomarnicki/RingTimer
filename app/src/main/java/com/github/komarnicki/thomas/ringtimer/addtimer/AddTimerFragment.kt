@@ -53,7 +53,6 @@ class AddTimerFragment : LifecycleFragment(){
 
         val timer = Timer(duration, breakTime)
         val viewModel = ViewModelProviders.of(activity).get(TimersViewModel::class.java)
-        viewModel.addTimer(timer)
 
         val imm = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(breakTimeEt.windowToken, 0)
@@ -62,6 +61,7 @@ class AddTimerFragment : LifecycleFragment(){
         if(checkbox.isChecked) {
             timer.warning = 30
         }
+        viewModel.addTimer(timer)
 
         activity.onBackPressed()
     }
