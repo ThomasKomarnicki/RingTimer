@@ -86,6 +86,7 @@ class TimerCountDown(var timer:Timer) {
     }
 
     fun restart() {
+        timerObservable.onNext(timerObservable.value.copy(updateType = TimerUpdateType.PLAY))
         timerProgress = 0;
         running1.onNext(true)
         playing = true

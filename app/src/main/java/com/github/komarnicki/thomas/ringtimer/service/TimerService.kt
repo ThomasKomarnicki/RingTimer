@@ -41,7 +41,9 @@ class TimerService : Service() {
             return super.onStartCommand(intent, flags, startId)
         }
         if(intent.hasExtra("timer")) {
-            notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
+            if(notificationManager == null) {
+                notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager?
+            }
             showForegroundNotification(intent)
         }
         else if(intent.hasExtra("pause")){
@@ -82,6 +84,7 @@ class TimerService : Service() {
 
         if(started) {
             binder.timerCountDown?.timer = timer
+
         }else {
             binder.timerCountDown = TimerCountDown(timer)
             disposable?.dispose()

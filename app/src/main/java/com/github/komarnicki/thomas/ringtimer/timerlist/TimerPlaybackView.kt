@@ -68,7 +68,7 @@ class TimerPlaybackView : FrameLayout {
                 progressView.reset()
             }
             else if(it.updateType == TimerUpdateType.LOOP){
-                progressView?.start(timerProgressObservable.value!!)
+                progressView.start(timerProgressObservable.value!!)
             }
         }
 

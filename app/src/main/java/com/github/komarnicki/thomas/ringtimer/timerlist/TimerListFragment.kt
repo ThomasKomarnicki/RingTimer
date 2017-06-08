@@ -91,20 +91,25 @@ class TimerListFragment : LifecycleFragment(), TimersAdapter.TimerClickListener{
 
     override fun onTimerClicked(timer: Timer, view: View) {
         viewModel?.activeTimer = timer
+        Log.d("TLF","timer clicked on  = $timer")
 
         val intent = Intent(activity, TimerService::class.java)
         intent.putExtra("timer", timer)
         activity.startService(intent)
 
 //        if(binder == null || binder?.isBinderAlive!!) {
-            activity.bindService(intent, serviceConnection, Service.BIND_AUTO_CREATE)
+//            activity.bindService(intent, serviceConnection, Service.BIND_AUTO_CREATE)
 //        }
 
         if(binder != null){
             adapter?.progressObservable = binder!!.timerCountDown?.timerObservable
             adapter?.notifyDataSetChanged()
+            if(timer.id != binder!!.timerCountDown!!.timerObservable.value.timer.id) {
+                binder!!.timerCountDown!!.timerObservable.onNext(binder!!.timerCountDown!!.timerObservable.value.copy(updateType = TimerUpdateType.SWITCH_TIMER))
+            }
         }
 
+        activity.bindService(intent, serviceConnection, Service.BIND_AUTO_CREATE)
     }
 
     private fun bindService(timer: Timer?){

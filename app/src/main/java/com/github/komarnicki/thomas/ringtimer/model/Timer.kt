@@ -67,4 +67,8 @@ class Timer : Parcelable {
         return duration + breakTime + if(warning > 0) warning else 0
     }
 
+    override fun toString(): String {
+        return "duration = $duration, breakTime = $breakTime, warning = $warning"
+    }
+
 }
