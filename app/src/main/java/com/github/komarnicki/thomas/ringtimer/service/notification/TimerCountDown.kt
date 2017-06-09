@@ -6,10 +6,29 @@ import com.github.komarnicki.thomas.ringtimer.model.TimerUpdateType
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.subjects.BehaviorSubject
+import io.reactivex.subjects.Subject
 import java.util.concurrent.TimeUnit
 
+object TimerInstance{
+    var timerCountDown: TimerCountDown? = null
 
-class TimerCountDown(var timer:Timer) {
+    var timerObservable: Subject<TimerProgressUpdate>? = null
+    get() {
+        return timerCountDown?.timerObservable
+    }
+
+    fun startTimer(timer: Timer){
+
+    }
+
+    fun destroyTimer(){
+        timerCountDown?.timerObservable?.onComplete()
+    }
+}
+
+class TimerCountDown {
+
+    var timer:Timer = Timer(0,0)
 
     private var timerProgress: Long = 0
     private var lastProgress: Long = 0
@@ -68,7 +87,7 @@ class TimerCountDown(var timer:Timer) {
                 timerObservable.onComplete()
             }.observeOn(AndroidSchedulers.mainThread())
 
-    init {
+    fun start(){
         help.subscribe {
             timerObservable.onNext(it)
         }
@@ -85,7 +104,8 @@ class TimerCountDown(var timer:Timer) {
         timerObservable.onNext(TimerProgressUpdate(0,timer,TimerUpdateType.PLAY))
     }
 
-    fun restart() {
+    fun restart(timer: Timer) {
+        this.timer = timer
         timerObservable.onNext(timerObservable.value.copy(updateType = TimerUpdateType.PLAY))
         timerProgress = 0;
         running1.onNext(true)

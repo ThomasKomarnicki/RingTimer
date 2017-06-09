@@ -15,6 +15,7 @@ import com.github.komarnicki.thomas.ringtimer.model.Timer
 import com.github.komarnicki.thomas.ringtimer.model.TimerUpdateType
 import com.github.komarnicki.thomas.ringtimer.service.notification.TimerControlView
 import com.github.komarnicki.thomas.ringtimer.service.notification.TimerCountDown
+import com.github.komarnicki.thomas.ringtimer.service.notification.TimerInstance
 import com.github.komarnicki.thomas.ringtimer.timerlist.TimerListActivity
 import io.reactivex.disposables.Disposable
 
@@ -47,11 +48,11 @@ class TimerService : Service() {
             showForegroundNotification(intent)
         }
         else if(intent.hasExtra("pause")){
-            binder.timerCountDown!!.toggle()
+            TimerInstance.timerCountDown?.toggle()
         }
         else if(intent.hasExtra("stop")){
             stopForeground(true)
-            binder.timerCountDown?.stop()
+            TimerInstance.timerCountDown?.stop()
             disposable?.dispose()
         }
         return super.onStartCommand(intent, flags, startId)
@@ -83,13 +84,12 @@ class TimerService : Service() {
         })
 
         if(started) {
-            binder.timerCountDown?.timer = timer
-
+            TimerInstance.timerCountDown?.timer = timer
         }else {
-            binder.timerCountDown = TimerCountDown(timer)
+//            binder.timerCountDown = TimerCountDown(timer)
             disposable?.dispose()
 
-            binder.timerCountDown!!.timerObservable.subscribe {
+            TimerInstance.timerCountDown?.timerObservable?.subscribe {
 
                 if(it.updateType == TimerUpdateType.PLAY || it.updateType == TimerUpdateType.PAUSE){
                     val playing = it.updateType == TimerUpdateType.PLAY
@@ -115,7 +115,7 @@ class TimerService : Service() {
             }
             started = true
         }
-        binder.timerCountDown!!.restart()
+        TimerInstance.timerCountDown?.restart(timer)
 
         timerControlView?.configPlayPause(this, timer)
     }

@@ -23,6 +23,7 @@ import com.github.komarnicki.thomas.ringtimer.addtimer.AddTimerFragment
 import com.github.komarnicki.thomas.ringtimer.model.Timer
 import com.github.komarnicki.thomas.ringtimer.model.TimerUpdateType
 import com.github.komarnicki.thomas.ringtimer.service.TimerServiceBinder
+import com.github.komarnicki.thomas.ringtimer.service.notification.TimerInstance
 
 class TimerListFragment : LifecycleFragment(), TimersAdapter.TimerClickListener{
 
@@ -102,14 +103,17 @@ class TimerListFragment : LifecycleFragment(), TimersAdapter.TimerClickListener{
 //        }
 
         if(binder != null){
-            adapter?.progressObservable = binder!!.timerCountDown?.timerObservable
+            adapter?.progressObservable =  TimerInstance.timerCountDown?.timerObservable
             adapter?.notifyDataSetChanged()
-            if(timer.id != binder!!.timerCountDown!!.timerObservable.value.timer.id) {
-                binder!!.timerCountDown!!.timerObservable.onNext(binder!!.timerCountDown!!.timerObservable.value.copy(updateType = TimerUpdateType.SWITCH_TIMER))
+            if(timer.id !=  TimerInstance.timerCountDown?.timerObservable!!.value.timer.id) {
+                TimerInstance.timerCountDown?.timer = timer
+                TimerInstance.timerCountDown?.timerObservable?.onNext( TimerInstance.timerCountDown?.timerObservable!!.value.copy(updateType = TimerUpdateType.SWITCH_TIMER))
+                TimerInstance.timerCountDown?.restart(timer)
             }
         }
-
-        activity.bindService(intent, serviceConnection, Service.BIND_AUTO_CREATE)
+        else {
+            activity.bindService(intent, serviceConnection, Service.BIND_AUTO_CREATE)
+        }
     }
 
     private fun bindService(timer: Timer?){
@@ -128,10 +132,10 @@ class TimerListFragment : LifecycleFragment(), TimersAdapter.TimerClickListener{
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             binder = service as TimerServiceBinder
 
-            adapter?.progressObservable = binder!!.timerCountDown?.timerObservable
+            adapter?.progressObservable =  TimerInstance.timerCountDown?.timerObservable
             adapter?.notifyDataSetChanged()
 
-            binder!!.timerCountDown?.timerObservable?.subscribe{
+            TimerInstance.timerCountDown?.timerObservable!!.subscribe{
                 if(it.updateType == TimerUpdateType.DONE){
                     viewModel?.activeTimer = null
                     if(isResumed) {

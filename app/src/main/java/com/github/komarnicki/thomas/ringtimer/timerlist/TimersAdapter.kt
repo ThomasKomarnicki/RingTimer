@@ -25,6 +25,8 @@ class TimersAdapter(var timers: List<Timer>, var timerClickListener: TimerClickL
     private var disposable: Disposable? = null;
     private var switched = true
 
+    private var timerPlaybackVH: TimerPlaybackViewHolder? = null
+
     override fun onBindViewHolder(viewHolder: RecyclerView.ViewHolder, position: Int) {
         if(viewHolder is VH) {
             val timerIndex = if(position <= runningTimerPos) position else position - 1
@@ -54,6 +56,8 @@ class TimersAdapter(var timers: List<Timer>, var timerClickListener: TimerClickL
                 }
         }
         }else if(viewHolder is TimerPlaybackViewHolder){
+            timerPlaybackVH = viewHolder
+            
             if(progressObservable != null && progressObservable?.value != null) {
                 if(switched) {
                     Log.d("TimerAdapter","set initial progress observable")
@@ -63,7 +67,7 @@ class TimersAdapter(var timers: List<Timer>, var timerClickListener: TimerClickL
                 disposable = progressObservable?.subscribe {
                     if(it.updateType == TimerUpdateType.PLAY && switched){
                         viewHolder.timerPlaybackView.setTimerProgressObservable(progressObservable!!)
-                        Log.d("TimerAdapter","set timer progress observable after switch")
+                        Log.d("TimerAdapter","set timer progress observable after switch: ${progressObservable!!.value}")
                         viewHolder.timerPlaybackView.visibility = View.VISIBLE
                         switched = false
                     }

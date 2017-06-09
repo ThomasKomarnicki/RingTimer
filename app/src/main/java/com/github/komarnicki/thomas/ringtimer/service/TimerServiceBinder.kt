@@ -6,5 +6,5 @@ import com.github.komarnicki.thomas.ringtimer.service.notification.TimerCountDow
 
 class TimerServiceBinder : Binder() {
 
-    var timerCountDown: TimerCountDown? = null
+//    var timerCountDown: TimerCountDown? = null
 }
